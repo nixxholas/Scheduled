@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "903378098552",
+    "firebase_url": "https://scheduled-7f23b.firebaseio.com",
+    "project_id": "scheduled-7f23b",
+    "storage_bucket": "scheduled-7f23b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903378098552:android:a5b20cc78254dc80",
+        "android_client_info": {
+          "package_name": "com.nixho.scheduled"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "903378098552-krjn0hvqst6onre4751j9bkjc5u7a16m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nixho.scheduled",
+            "certificate_hash": "CACF08E43EC6E4486C2295D9FCA5A7B0CFC655F1"
+          }
+        },
+        {
+          "client_id": "903378098552-6rlrfq37tffj6kcvjv3kf5rrffuubcm6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJig89UsgPtRYP4YGsJgdduhgP8Lfwhts"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "903378098552-6rlrfq37tffj6kcvjv3kf5rrffuubcm6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
