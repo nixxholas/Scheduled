@@ -1,5 +1,6 @@
 package com.nixho.scheduled;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,12 +13,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.squareup.picasso.Picasso;
 
 public class InnerMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    ImageView profilePicture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Intent intent = getIntent(); // Coming from MainActivity,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inner_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -40,6 +47,16 @@ public class InnerMainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // Load the current user
+        GoogleSignInAccount currUser = (GoogleSignInAccount) getIntent().getSerializableExtra("GoogleAccount");
+
+        // We'll have to initialize the data
+        profilePicture = (ImageView) navigationView.findViewById(R.id.imageView);
+
+        // http://stackoverflow.com/questions/37466644/set-an-imageview-from-photo-url
+        Picasso.with(this).load(currUser.getPhotoUrl()).into(profilePicture);
+
     }
 
     @Override

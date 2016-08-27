@@ -1,9 +1,9 @@
 package com.nixho.scheduled;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,12 +19,15 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+import java.io.Serializable;
+
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener, Serializable {
     SignInButton signInButton;
     Button signOutButton;
     TextView statusTextView;
     GoogleApiClient mGoogleApiClient;
     private static final String TAG = "SignInActivity";
+    private static GoogleSignInAccount currUser; // Current User to come in if he's from Google
     private static final int RC_SIGN_IN = 9001;
 
     @Override
@@ -90,15 +93,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         Log.d(TAG, "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
             //Signed in successfully, show authenticated UI.
-            GoogleSignInAccount acct = result.getSignInAccount();
+            currUser = result.getSignInAccount();
             //statusTextView.setText("Hello " + acct.getDisplayName());
 
             // We'll be launching the InnerMainActivity here
+            // https://developer.android.com/training/basics/firstapp/starting-activity.html
             Intent intent = new Intent(this, InnerMainActivity.class);
 
             // This intent flag will clear all the history of activities. This means that
             // the user won't be able to spam login again.
+            // http://stackoverflow.com/questions/3473168/clear-the-entire-history-stack-and-start-a-new-activity-on-android
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.putExtra("GoogleAccount", currUser); // Because we're pushing the currUser into the intent, we don't need it to be public anymore.
 
             startActivity(intent);
 
