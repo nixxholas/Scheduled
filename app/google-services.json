@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "903378098552-0e012o5cl6k27f5cnb2tavgh8e51s2u9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nixho.scheduled",
+            "certificate_hash": "01ED4D966D70C304B093645C52403E62E9503B40"
+          }
+        },
+        {
           "client_id": "903378098552-krjn0hvqst6onre4751j9bkjc5u7a16m.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

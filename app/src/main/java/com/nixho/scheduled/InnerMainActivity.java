@@ -1,5 +1,6 @@
 package com.nixho.scheduled;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.squareup.picasso.Picasso;
@@ -21,6 +23,7 @@ import com.squareup.picasso.Picasso;
 public class InnerMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     ImageView profilePicture;
+    int backCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +55,10 @@ public class InnerMainActivity extends AppCompatActivity
         GoogleSignInAccount currUser = (GoogleSignInAccount) getIntent().getSerializableExtra("GoogleAccount");
 
         // We'll have to initialize the data
-        profilePicture = (ImageView) navigationView.findViewById(R.id.imageView);
+        //profilePicture = (ImageView) navigationView.findViewById(R.id.imageView);
 
         // http://stackoverflow.com/questions/37466644/set-an-imageview-from-photo-url
-        Picasso.with(this).load(currUser.getPhotoUrl()).into(profilePicture);
+        //Picasso.with(this).load(currUser.getPhotoUrl()).into(profilePicture);
 
     }
 
@@ -65,7 +68,21 @@ public class InnerMainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            // http://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android
+            //super.onBackPressed(); // Goes back to the parent activity
+
+            if (backCount == 0) {
+                ++backCount;
+                Context context = getApplicationContext();
+                CharSequence text = "Press the back button again to close the app";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            } else {
+                finish();
+                System.exit(0);
+            }
         }
     }
 
