@@ -13,7 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center" >
+        android:gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
         <TextView
             android:id="@+id/status_textview"
@@ -22,16 +24,19 @@
             android:text="" />
 
         <com.google.android.gms.common.SignInButton
-            android:id="@+id/signInButton"
+            android:id="@+id/googleSignInButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="47dp" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="Sign Out"
-            android:id="@+id/signOutButton" />
+            android:drawableLeft="@drawable/ic_login"
+            android:text="Sign in with an email"
+            android:backgroundTint="#595959"
+            android:textColor="#ffffff"
+            android:id="@+id/signInButton" />
 
     </LinearLayout>
 </RelativeLayout>

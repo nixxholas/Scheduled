@@ -1,5 +1,6 @@
 package com.nixho.scheduled;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,17 +32,20 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.nixho.scheduled.Authentication.LoginActivity;
+import com.nixho.scheduled.Utilities.Constants;
 
 import java.io.Serializable;
 
 import static com.google.firebase.auth.GoogleAuthProvider.*;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener, Serializable {
-    SignInButton signInButton;
-    Button signOutButton;
+    SignInButton googleSignInButton;
+    Button defaultSignInButton;
     TextView statusTextView;
     Intent innerIntent;
     GoogleApiClient mGoogleApiClient;
+    ProgressDialog progress;
     private FirebaseAuth mAuth;
     private static final String TAG = "SignInActivity";
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        innerIntent = new Intent(this, InnerMainActivity.class);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id)) // Request ID Token Fix by Tomer Gu via https://groups.google.com/forum/#!msg/firebase-talk/T904DMYBuSY/YVre9S4oAQAJ
@@ -59,6 +64,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .build();
         // ATTENTION: This "addApi(AppIndex.API)"was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
+
+        progress = new ProgressDialog(this);
+        progress.setTitle("Loading...");
+        progress.setMessage("Performing cleanup!");
+        progress.show();
 
         // Google Authentication Initialization
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -76,17 +86,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+
+                    progress.hide();
+                    startActivity(innerIntent);
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
+                    progress.hide();
                 }
                 // ...
             }
         };
 
         statusTextView = (TextView) findViewById(R.id.status_textview);
-        signInButton = (SignInButton) findViewById(R.id.signInButton);
-        signInButton.setOnClickListener(this);
+        googleSignInButton = (SignInButton) findViewById(R.id.googleSignInButton);
+        googleSignInButton.setOnClickListener(this);
         // Customize sign-in button. The sign-in button can be displayed in
         // multiple sizes and color schemes. It can also be contextually
         // rendered based on the requested scopes. For example. a red button may
@@ -94,25 +108,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         // may be displayed when only basic profile is requested. Try adding the
         // Scopes.PLUS_LOGIN scope to the GoogleSignInOptions to see the
         // difference.
-        signInButton.setSize(SignInButton.SIZE_WIDE);
-        signInButton.setColorScheme(SignInButton.COLOR_LIGHT);
-        signInButton.setScopes(gso.getScopeArray());
+        googleSignInButton.setSize(SignInButton.SIZE_WIDE);
+        googleSignInButton.setColorScheme(SignInButton.COLOR_LIGHT);
+        googleSignInButton.setScopes(gso.getScopeArray());
 
-        signOutButton = (Button) findViewById(R.id.signOutButton);
-        signOutButton.setOnClickListener(this);
-        signOutButton.setVisibility(View.GONE); // Don't let the user signout before signing in
+        defaultSignInButton = (Button) findViewById(R.id.signInButton);
+        defaultSignInButton.setOnClickListener(this);
+        defaultSignInButton.setVisibility(View.GONE); // Don't let the user signout before signing in
     }
 
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
-            case R.id.signInButton:
+            case R.id.googleSignInButton:
                 signIn();
                 break;
-            case R.id.signOutButton:
-                signOut();
+            case R.id.signInButton:
+                customSignIn();
                 break;
         }
+    }
+
+    public void customSignIn() {
+        Intent customSignInIntent = new Intent(this, LoginActivity.class);
+        startActivityForResult(customSignInIntent, RC_SIGN_IN);
     }
 
     public void signIn() {
