@@ -42,7 +42,17 @@ public class InnerMainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inner_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        // Setup the CalendarView
         calendar = (CalendarView) findViewById(R.id.MainCalendar);
+
+        // https://www.youtube.com/watch?v=ZHLCfqN-60A
+        calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
+                    Toast.makeText(view.getContext(), "Year=" + year + " Month=" + month + " Day=" + dayOfMonth, Toast.LENGTH_LONG).show();
+            }
+        });
+
         setSupportActionBar(toolbar);
 
         FloatingActionButton FloatingButton = (FloatingActionButton) findViewById(R.id.InnerActivityFAButton);
