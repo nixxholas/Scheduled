@@ -17,13 +17,18 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.nixho.scheduled.Authentication.InternalLayer;
 import com.squareup.picasso.Picasso;
+
+import static com.nixho.scheduled.Utilities.Constants.firebase;
 
 public class InnerMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     ImageView profilePicture;
     int backCount = 0;
+    InternalLayer IL = new InternalLayer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,18 +76,12 @@ public class InnerMainActivity extends AppCompatActivity
             // http://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android
             //super.onBackPressed(); // Goes back to the parent activity
 
-            if (backCount == 0) {
-                ++backCount;
-                Context context = getApplicationContext();
-                CharSequence text = "Press the back button again to close the app";
-                int duration = Toast.LENGTH_SHORT;
+            // Just send the app to a background task
+            // http://stackoverflow.com/questions/17719634/how-to-exit-an-android-app-using-code
+            moveTaskToBack(true);
 
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
-            } else {
-                finish();
-                System.exit(0);
-            }
+            // This will bloody shut the app down
+            //android.os.Process.killProcess(android.os.Process.myPid());
         }
     }
 
@@ -126,6 +125,13 @@ public class InnerMainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_send) {
 
+        } else if (id == R.id.sign_out)  {
+            IL.logout();
+            Intent mainIntent = new Intent(InnerMainActivity.this, MainActivity.class);
+            mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(mainIntent);
+            Toast.makeText(this, "Leggo", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
