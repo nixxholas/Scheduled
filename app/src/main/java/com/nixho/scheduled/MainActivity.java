@@ -34,11 +34,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.nixho.scheduled.Authentication.InternalLayer;
-import com.nixho.scheduled.Authentication.LoginActivity;
-import com.nixho.scheduled.Utilities.Constants;
 
 import java.io.Serializable;
 
@@ -59,9 +55,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
      */
     private InternalLayer AuthHelper; // Let's call it AuthHelper, to help us
     SignInButton googleSignInButton; // The Google Sign In Button
-    Button defaultSignInButton; // The usual sign in button
+    //Button defaultSignInButton; // The usual sign in button
     Intent innerIntent; // We'll be using this intent to bring the user to an activity after successful authentication.
-    Intent defaultSignInIntent; // This will be used to bring the user to the default sign in activity.
+    //Intent defaultSignInIntent; // This will be used to bring the user to the default sign in activity.
     private static final String TAG = "SignInActivity"; // Just a name.
     private static GoogleSignInAccount currUser; // Current User to come in IF he's from Google
     /**
@@ -151,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     // Implement a redirector when a user logs out
                     // http://stackoverflow.com/questions/37533745/firebase-authentication-auth-state-changed
                     String className = this.getClass().getName();
-                    if (!(className == "LoginActivity") || !(className == "MainActivity")) {
+                    if (!(className == "MainActivity")) {
                         //Intent intent = new Intent(MainActivity.class, MainActivity.class);
                         // intent.putExtra("EXTRA_SESSION_ID", sessionId);
 
@@ -175,9 +171,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         googleSignInButton.setColorScheme(SignInButton.COLOR_LIGHT);
         googleSignInButton.setScopes(gso.getScopeArray());
 
-        defaultSignInButton = (Button) findViewById(R.id.signInButton);
+        /*defaultSignInButton = (Button) findViewById(R.id.signInButton);
         defaultSignInButton.setOnClickListener(this);
-        defaultSignInButton.setVisibility(View.GONE); // Don't let the user signout before signing in
+        defaultSignInButton.setVisibility(View.GONE); // Don't let the user signout before signing in*/
     }
 
     @Override
@@ -186,15 +182,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             case R.id.googleSignInButton:
                 signIn();
                 break;
-            case R.id.signInButton:
-                customSignIn();
-                break;
         }
-    }
-
-    public void customSignIn() {
-        Intent customSignInIntent = new Intent(this, LoginActivity.class);
-        startActivity(customSignInIntent);
     }
 
     public void signIn() {

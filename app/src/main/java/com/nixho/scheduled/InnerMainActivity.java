@@ -128,7 +128,11 @@ public class InnerMainActivity extends AppCompatActivity
         } else if (id == R.id.sign_out)  {
             IL.logout();
             Intent mainIntent = new Intent(InnerMainActivity.this, MainActivity.class);
+
+            // Intent flag to prevent the activity to be "back"able
+            //http://stackoverflow.com/questions/5000787/how-to-finish-current-activity-in-android
             mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
             startActivity(mainIntent);
             Toast.makeText(this, "Leggo", Toast.LENGTH_SHORT).show();
             finish();

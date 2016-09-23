@@ -3,11 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:backgroundTint="#F0FFFFFF"
     tools:context="com.nixho.scheduled.MainActivity">
+
+    <ImageView
+        android:id="@+id/loginBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/ic_loginbackground"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,20 +20,13 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
 
+        
+
         <com.google.android.gms.common.SignInButton
             android:id="@+id/googleSignInButton"
-            android:layout_width="wrap_content"
-            android:layout_height="47dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:drawableLeft="@drawable/ic_login"
-            android:text="Sign in with an email"
-            android:backgroundTint="#595959"
-            android:textColor="#ffffff"
-            android:id="@+id/signInButton" />
+            android:layout_gravity="center"
+            android:layout_width="250dp"
+            android:layout_height="50dp" />
 
     </LinearLayout>
 </RelativeLayout>
