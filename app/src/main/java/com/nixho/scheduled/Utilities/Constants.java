@@ -2,9 +2,8 @@ package com.nixho.scheduled.Utilities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.widget.ImageView;
+import android.widget.CalendarView;
 
-import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
@@ -15,6 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
  */
 
 public class Constants {
+    public static CalendarView calendar;
     /* Create the Firebase ref that is used for all authentication with Firebase */
     public static Firebase firebase = new Firebase("https://scheduled-7f23b.firebaseio.com");
     /* Data from the authenticated user */

@@ -12,4 +12,10 @@
     tools:context="com.nixho.scheduled.InnerMainActivity"
     tools:showIn="@layout/app_bar_inner_main">
 
+    <!-- https://github.com/StackTipsLab/Add-Calendar-Event-Android -->
+    <CalendarView
+        android:id="@+id/MainCalendar"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"/>
+
 </RelativeLayout>

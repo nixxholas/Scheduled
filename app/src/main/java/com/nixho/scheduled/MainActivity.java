@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         innerIntent = new Intent(this, InnerMainActivity.class);
 
         // GoogleSignInOptions
+        // https://developers.google.com/android/reference/com/google/android/gms/auth/api/signin/GoogleSignInOptions
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id)) // Request ID Token Fix by Tomer Gu via https://groups.google.com/forum/#!msg/firebase-talk/T904DMYBuSY/YVre9S4oAQAJ
                 .requestEmail()
