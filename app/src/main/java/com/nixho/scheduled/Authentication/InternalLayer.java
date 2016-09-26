@@ -1,21 +1,11 @@
 package com.nixho.scheduled.Authentication;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.firebase.client.AuthData;
-import com.firebase.client.Firebase;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.nixho.scheduled.Utilities.Singleton;
 
 import static android.content.ContentValues.TAG;
-import static com.nixho.scheduled.Utilities.Constants.User;
-import static com.nixho.scheduled.Utilities.Constants.firebase;
-import static com.nixho.scheduled.Utilities.Constants.mAuth;
-import static com.nixho.scheduled.Utilities.Constants.mGoogleApiClient;
-import static com.nixho.scheduled.Utilities.Constants.progress;
 
 /**
  * Created by nixho on 23-Sep-16.
@@ -27,22 +17,22 @@ public class InternalLayer {
      */
     public void logout() {
         Log.e(TAG,"Running Logout()");
-        if (mAuth != null) {
+        if (Singleton.INSTANCE.mAuth != null) {
             /* logout of Firebase */
-            mAuth.signOut();
+            Singleton.INSTANCE.mAuth.signOut();
             //firebase.unauth();
             /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
              * Google+ after logging out of Firebase. */
             //if (mAuthData.getProvider().equals("google")) {
                 /* Logout from Google+ */
-                if (mGoogleApiClient.isConnected()) {
-                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                    mGoogleApiClient.disconnect();
+                if (Singleton.INSTANCE.mGoogleApiClient.isConnected()) {
+                    Plus.AccountApi.clearDefaultAccount(Singleton.INSTANCE.mGoogleApiClient);
+                    Singleton.INSTANCE.mGoogleApiClient.disconnect();
                 }
             //}
 
             /* Update authenticated user and show login buttons */
-            User = null;
+            Singleton.INSTANCE.User = null;
             //setAuthenticatedUser(null);
         }
     }

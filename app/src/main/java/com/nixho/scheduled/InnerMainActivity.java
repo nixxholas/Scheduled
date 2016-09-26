@@ -1,12 +1,8 @@
 package com.nixho.scheduled;
 
-import android.content.Context;
 import android.content.Intent;
-import android.icu.util.Calendar;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,15 +16,9 @@ import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.firebase.client.Firebase;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.nixho.scheduled.Authentication.InternalLayer;
-import com.squareup.picasso.Picasso;
-
-import java.util.GregorianCalendar;
-
-import static com.nixho.scheduled.Utilities.Constants.calendar;
-import static com.nixho.scheduled.Utilities.Constants.firebase;
+import com.nixho.scheduled.Utilities.Singleton;
 
 public class InnerMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -44,10 +34,10 @@ public class InnerMainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         // Setup the CalendarView
-        calendar = (CalendarView) findViewById(R.id.MainCalendar);
+        Singleton.INSTANCE.calendar = (CalendarView) findViewById(R.id.MainCalendar);
 
         // https://www.youtube.com/watch?v=ZHLCfqN-60A
-        calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+        Singleton.INSTANCE.calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
                     Toast.makeText(view.getContext(), "Year=" + year + " Month=" + month + " Day=" + dayOfMonth, Toast.LENGTH_LONG).show();
             }
