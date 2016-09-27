@@ -3,6 +3,7 @@ package com.nixho.scheduled.Utilities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.provider.ContactsContract;
+import android.support.design.widget.FloatingActionButton;
 import android.widget.CalendarView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -29,6 +30,7 @@ public enum Singleton {
     public FirebaseApp firebase;
     public DatabaseReference databaseReference; // We'll have to utilize the new Firebase 3.0 APIs
     public CalendarView calendar;
+    public FloatingActionButton FloatingButton;
     /* Create the Firebase ref that is used for all authentication with Firebase */
     //public Firebase firebase = new Firebase("https://scheduled-7f23b.firebaseio.com");
     // Data from the authenticated user

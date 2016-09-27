@@ -3,6 +3,7 @@ package com.nixho.scheduled;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.nixho.scheduled.Authentication.InternalLayer;
+import com.nixho.scheduled.Fragments.CalendarFragment;
+import com.nixho.scheduled.Fragments.TasksFragment;
 import com.nixho.scheduled.Utilities.Singleton;
 
 public class InnerMainActivity extends AppCompatActivity
@@ -45,8 +48,9 @@ public class InnerMainActivity extends AppCompatActivity
 
         setSupportActionBar(toolbar);
 
-        FloatingActionButton FloatingButton = (FloatingActionButton) findViewById(R.id.InnerActivityFAButton);
-        FloatingButton.setOnClickListener(new View.OnClickListener() {
+        // Initialize the Universal Floating Button
+        Singleton.INSTANCE.FloatingButton = (FloatingActionButton) findViewById(R.id.InnerActivityFAButton);
+        Singleton.INSTANCE.FloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -61,9 +65,6 @@ public class InnerMainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        // Load the current user
-        GoogleSignInAccount currUser = (GoogleSignInAccount) getIntent().getSerializableExtra("GoogleAccount");
 
         // We'll have to initialize the data
         //profilePicture = (ImageView) navigationView.findViewById(R.id.imageView);
@@ -118,33 +119,33 @@ public class InnerMainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        FragmentManager manager = getSupportFragmentManager(); // Initialize the FragmentManager
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        switch (id) {
+            case R.id.nav_calendar:
+                CalendarFragment calendarFragment = new CalendarFragment(); // Create an object from the fragment
 
-        } else if (id == R.id.nav_slideshow) {
+                manager.beginTransaction().replace(R.id.mainContent, calendarFragment, calendarFragment.getTag()).commit();
+                break;
+            case R.id.nav_tasks:
+                TasksFragment tasksFragment = new TasksFragment(); // Create an object from the fragment
 
-        } else if (id == R.id.nav_manage) {
+                manager.beginTransaction().replace(R.id.mainContent, tasksFragment, tasksFragment.getTag()).commit();
+                break;
+            case R.id.sign_out:
+                IL.logout();
+                Intent mainIntent = new Intent(InnerMainActivity.this, MainActivity.class);
 
-        } else if (id == R.id.nav_share) {
+                // Intent flag to prevent the activity to be "back"able
+                //http://stackoverflow.com/questions/5000787/how-to-finish-current-activity-in-android
+                mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-        } else if (id == R.id.nav_send) {
+                startActivity(mainIntent);
 
-        } else if (id == R.id.sign_out)  {
-            IL.logout();
-            Intent mainIntent = new Intent(InnerMainActivity.this, MainActivity.class);
-
-            // Intent flag to prevent the activity to be "back"able
-            //http://stackoverflow.com/questions/5000787/how-to-finish-current-activity-in-android
-            mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-            startActivity(mainIntent);
-            Toast.makeText(this, "Leggo", Toast.LENGTH_SHORT).show();
-
-            // Reason why finish is used instead
-            // http://stackoverflow.com/questions/7117690/whats-the-difference-between-finish-and-finishactivityint-requestcode-in-and
-            finish();
+                // Reason why finish is used instead
+                // http://stackoverflow.com/questions/7117690/whats-the-difference-between-finish-and-finishactivityint-requestcode-in-and
+                finish();
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

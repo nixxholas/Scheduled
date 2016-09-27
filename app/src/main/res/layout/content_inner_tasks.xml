@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mainContent"
+    android:id="@+id/tasksContent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -14,14 +14,9 @@
     tools:showIn="@layout/app_bar_inner_main">
 
     <!-- https://github.com/StackTipsLab/Add-Calendar-Event-Android -->
-    <CalendarView
-        android:id="@+id/MainCalendar"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/tasks_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="400dp"/>
-
-    <ScrollView
-        android:id="@+id/DayScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
 </RelativeLayout>
