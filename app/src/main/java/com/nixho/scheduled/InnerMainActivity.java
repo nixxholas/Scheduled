@@ -26,12 +26,10 @@ import com.nixho.scheduled.Utilities.Singleton;
 public class InnerMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     ImageView profilePicture;
-    int backCount = 0;
     InternalLayer IL = new InternalLayer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Intent intent = getIntent(); // Coming from MainActivity,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inner_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

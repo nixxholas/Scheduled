@@ -3,10 +3,13 @@ package com.nixho.scheduled.Fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CalendarView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.nixho.scheduled.R;
@@ -32,6 +35,8 @@ public class CalendarFragment extends Fragment {
 
         // Setup the CalendarView
         Singleton.INSTANCE.calendar = (CalendarView) view.findViewById(R.id.MainCalendar);
+
+        Singleton.INSTANCE.calendar.setLayoutParams(new RelativeLayout.LayoutParams(DrawerLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
 
         // https://www.youtube.com/watch?v=ZHLCfqN-60A
         Singleton.INSTANCE.calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
