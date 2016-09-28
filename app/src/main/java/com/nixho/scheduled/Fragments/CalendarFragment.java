@@ -2,9 +2,11 @@ package com.nixho.scheduled.Fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +38,7 @@ public class CalendarFragment extends Fragment {
         // Setup the CalendarView
         Singleton.INSTANCE.calendar = (CalendarView) view.findViewById(R.id.MainCalendar);
 
-        Singleton.INSTANCE.calendar.setLayoutParams(new RelativeLayout.LayoutParams(DrawerLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+        Singleton.INSTANCE.calendar.setLayoutParams(new CoordinatorLayout.LayoutParams(DrawerLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
 
         // https://www.youtube.com/watch?v=ZHLCfqN-60A
         Singleton.INSTANCE.calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
@@ -46,5 +48,18 @@ public class CalendarFragment extends Fragment {
         });
 
         return view;
+    }
+
+    public static void createNewCalendarEvent(View v) {
+        // Inflate -> View
+        View newView = LayoutInflater.from(v.getContext()).inflate(R.layout.content_inner_tasks_createalert, null); // Well, indians told me to null..
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+
+        builder//.setMessage("Create a new task") Well, this overlaps with the resources from newView
+                .setView(newView);
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }

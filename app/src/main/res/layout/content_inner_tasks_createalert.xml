@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tasksContent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.nixho.scheduled.InnerMainActivity"
+    tools:showIn="@layout/app_bar_inner_main">
+
+    <TextView
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/create_task_title"
+        android:textSize="15sp"
+        android:textStyle="bold"/>
+
+    <EditText
+        android:layout_marginLeft="@dimen/dialogactivity_side_margins"
+        android:layout_marginRight="@dimen/dialogactivity_side_margins"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:id="@+id/taskName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/create_task_task_name" />
+
+    <EditText
+        android:layout_marginLeft="@dimen/dialogactivity_side_margins"
+        android:layout_marginRight="@dimen/dialogactivity_side_margins"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:id="@+id/taskDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/create_task_task_details" />
+
+<!--        <Button
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:id="@+id/createTask_btnCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:text="Create"
+            android:textColor="#ffff" />-->
+
+</LinearLayout>
+

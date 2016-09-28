@@ -28,7 +28,7 @@ public enum Singleton {
     INSTANCE;
 
     public FirebaseApp firebase;
-    public DatabaseReference databaseReference; // We'll have to utilize the new Firebase 3.0 APIs
+    public DatabaseReference rootRef = FirebaseDatabase.getInstance().getReferenceFromUrl("https://scheduled-7f23b.firebaseio.com/"); // We'll have to utilize the new Firebase 3.0 APIs
     public CalendarView calendar;
     public FloatingActionButton FloatingButton;
     /* Create the Firebase ref that is used for all authentication with Firebase */
@@ -41,20 +41,7 @@ public enum Singleton {
     // to "Auto" Authenticate upon the launch of the app with a method called onAuthStateChanged
     // in order to validate the returning user's token.
     public FirebaseAuth.AuthStateListener mAuthListener;
-    public Intent mainIntent;
     public ProgressDialog progress; // Well, in case the user has shitty internet, this progress dialog can be shown to make him wait for a moment.
     public GoogleApiClient mGoogleApiClient; // This is your buddy to Google. He'll be helping you out to authenticate via Play Services.
-
-    public static Singleton getInstance() {
-        return INSTANCE;
-    }
-
-    public DatabaseReference getDatabase(String prefix) {
-        if (prefix == null) {
-            return databaseReference = FirebaseDatabase.getInstance().getReferenceFromUrl("https://scheduled-7f23b.firebaseio.com");
-        } else {
-            return databaseReference = FirebaseDatabase.getInstance().getReferenceFromUrl("https://scheduled-7f23b.firebaseio.com/" + prefix);
-        }
-    }
 }
 

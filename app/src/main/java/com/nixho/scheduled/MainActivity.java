@@ -35,7 +35,7 @@ import java.io.Serializable;
 
 import static com.google.firebase.auth.GoogleAuthProvider.*;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, View.OnClickListener, Serializable {
+public class MainActivity extends ActivityExtension implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, View.OnClickListener, Serializable {
     /**
      * All the variables/objects instantiated here is implicitly made for this class only.
      * <p>

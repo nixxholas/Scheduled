@@ -3,7 +3,9 @@ package com.nixho.scheduled;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,7 +25,9 @@ import com.nixho.scheduled.Fragments.CalendarFragment;
 import com.nixho.scheduled.Fragments.TasksFragment;
 import com.nixho.scheduled.Utilities.Singleton;
 
-public class InnerMainActivity extends AppCompatActivity
+import static com.nixho.scheduled.Fragments.TasksFragment.createTaskView;
+
+public class InnerMainActivity extends ActivityExtension
         implements NavigationView.OnNavigationItemSelectedListener {
     ImageView profilePicture;
     InternalLayer IL = new InternalLayer();
@@ -48,10 +52,27 @@ public class InnerMainActivity extends AppCompatActivity
 
         // Initialize the Universal Floating Button
         Singleton.INSTANCE.FloatingButton = (FloatingActionButton) findViewById(R.id.InnerActivityFAButton);
+        /**
+         * Handling Fragment OnClicks via the Floating Action Button like a boss
+         *
+         * http://stackoverflow.com/questions/6750069/get-the-current-fragment-object
+         */
         Singleton.INSTANCE.FloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String currentTitle = getTitle().toString(); // Get the Title from the action bar.
 
+                switch (currentTitle) {
+                    case "Scheduled":
+                        break;
+                    case "Calendar":
+                        break;
+                    case "Tasks":
+                        createTaskView(view); // Invokes the createTaskView method via the TasksFragment class
+                        break;
+                    default:
+                        break;
+                }
             }
         });
 
@@ -122,11 +143,13 @@ public class InnerMainActivity extends AppCompatActivity
         switch (id) {
             case R.id.nav_calendar:
                 CalendarFragment calendarFragment = new CalendarFragment(); // Create an object from the fragment
+                setTitle(R.string.title_activity_inner_main);
 
                 manager.beginTransaction().replace(R.id.mainContent, calendarFragment, calendarFragment.getTag()).commit();
                 break;
             case R.id.nav_tasks:
                 TasksFragment tasksFragment = new TasksFragment(); // Create an object from the fragment
+                setTitle(R.string.title_activity_inner_tasks);
 
                 manager.beginTransaction().replace(R.id.mainContent, tasksFragment, tasksFragment.getTag()).commit();
                 break;
