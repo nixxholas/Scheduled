@@ -21,11 +21,17 @@
         android:textSize="15sp"
         android:textStyle="bold"/>
 
+    <ImageView
+        android:id="@+id/createalert_ImageView"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <EditText
         android:layout_marginLeft="@dimen/dialogactivity_side_margins"
         android:layout_marginRight="@dimen/dialogactivity_side_margins"
         android:paddingTop="@dimen/activity_vertical_margin"
-        android:id="@+id/taskName"
+        android:id="@+id/createalert_TaskName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/create_task_task_name" />
@@ -34,7 +40,7 @@
         android:layout_marginLeft="@dimen/dialogactivity_side_margins"
         android:layout_marginRight="@dimen/dialogactivity_side_margins"
         android:paddingTop="@dimen/activity_vertical_margin"
-        android:id="@+id/taskDesc"
+        android:id="@+id/createalert_TaskDesc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/create_task_task_details" />

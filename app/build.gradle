@@ -31,6 +31,8 @@ android {
  * They are now in sync with their Google Counterparts to reduce confusion with versions.
  */
 dependencies {
+    // Fixing the 64K issue http://stackoverflow.com/questions/36785014/the-number-of-method-references-in-a-dex-file-cannot-exceed-64k-api-17
+    compile 'com.android.support:multidex:1.0.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     // http://stackoverflow.com/questions/37466644/set-an-imageview-from-photo-url
     compile 'com.android.support:appcompat-v7:24.2.1'

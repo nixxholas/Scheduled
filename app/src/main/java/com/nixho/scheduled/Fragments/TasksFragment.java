@@ -3,12 +3,14 @@ package com.nixho.scheduled.Fragments;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,11 +67,7 @@ public class TasksFragment extends Fragment{
         }
 
         // Setup the views
-        View view = inflater.inflate(R.layout.content_inner_tasks, container, false);
-
-
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.tasks_recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        final View view = inflater.inflate(R.layout.content_inner_tasks, container, false);
 
         /**
          * We are using the URL here instead of the Firebase Object
@@ -78,29 +76,82 @@ public class TasksFragment extends Fragment{
          *
          * DatabaseReference is the updated Object for Firebase 3.0
          */
-        DatabaseReference tasksRef = Singleton.INSTANCE.rootRef.child("Zaki");
+        final DatabaseReference tasksRef = Singleton.INSTANCE.rootRef.child("Tasks"); // Setup the Database Reference
 
-        FirebaseRecyclerAdapter<String, MessageViewHolder> adapter =
-                new FirebaseRecyclerAdapter<String, MessageViewHolder>(
-                        String.class,
-                        android.R.layout.two_line_list_item,
-                        MessageViewHolder.class,
-                        tasksRef
+        // Setup the RecyclerView, a place to show all the tasks
+        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.tasks_recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        final FirebaseRecyclerAdapter<Tasks, TaskViewHolder> adapter =
+                new FirebaseRecyclerAdapter<Tasks, TaskViewHolder>(
+                        Tasks.class, // We need to inform the Adapter what kind of datatype we're taking in.
+                                     // in this case, we're taking in a Tasks object.
+                        R.layout.taskrow, // Inform the adapter to utilize the taskrow layout for any
+                                          // form of view that we're going to inject into
+                        TaskViewHolder.class, // We need to invoke a view injector, which is this class
+                                              // that will help us to inject the Tasks object into the taskrow layout.
+                        tasksRef // Basically the DatabaseReference we're taking the object from.
                 ) {
+                    /**
+                     * Populating the RecyclerView..
+                     *
+                     * @param viewHolder
+                     *
+                     *
+                     * @param task
+                     *
+                     *
+                     * @param position
+                     * With the use of position, we can obtain the key of from the FirebaseDatabase
+                     *
+                     * http://stackoverflow.com/questions/37568703/how-to-get-keys-and-values-using-firebaselistadapter
+                     */
                     @Override
-                    protected void populateViewHolder(MessageViewHolder viewHolder, String model, int position) {
-                        viewHolder.mText.setText(model);
+                    protected void populateViewHolder(TaskViewHolder viewHolder, Tasks task, int position) {
+                        DatabaseReference currRef = getRef(position);
 
-                        viewHolder.mText.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                            }
-                        });
+                        // Basically we need to attach the task to the viewHolder so that
+                        // the cards can instantiate their view properly
+                        viewHolder.setTaskName(task.getTaskName());
+                        viewHolder.setTaskDesc(task.getTaskDescription());
+                        viewHolder.setUid(currRef.getKey());
                     }
                 };
 
         recyclerView.setAdapter(adapter);
+
+        ItemTouchHelper.SimpleCallback itemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            /**
+             * This removes the CardView from the RecyclerView, allowing us to create a delete request
+             *
+             * http://stackoverflow.com/questions/27293960/swipe-to-dismiss-for-recyclerview/30601554#30601554
+             *
+             * @param viewHolder
+             * @param direction
+             */
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                // First find the position of the card
+                // https://www.learn2crack.com/2016/02/custom-swipe-recyclerview.html
+                int position = viewHolder.getAdapterPosition();
+
+                // Connect to the database, identify which card was swiped via the RecyclerViewAdapter
+                DatabaseReference currRef = adapter.getRef(position);
+
+                // Get it out of the DB
+                currRef.removeValue();
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchCallback);
+
+        itemTouchHelper.attachToRecyclerView(recyclerView);
 
         return view;
     }
@@ -110,15 +161,35 @@ public class TasksFragment extends Fragment{
      *
      * Only use this when you wanna learn RecyclerView
      */
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView mText;
+    public static class TaskViewHolder extends RecyclerView.ViewHolder {
+        View mView;
+        String uid;
 
-        public MessageViewHolder(View v) {
+        public TaskViewHolder(View v) {
             super(v);
-            mText = (TextView) v.findViewById(android.R.id.text1);
+
+            mView = v;
 
             // You can also set an OnClickListener here so that you
             // can listen on a specific resource/element.
+        }
+
+        public void setTaskName(String taskName) {
+           TextView taskNameView = (TextView) mView.findViewById(R.id.taskrow_TaskName);
+            taskNameView.setText(taskName);
+        }
+
+        public void setTaskDesc(String taskDesc) {
+            TextView taskDescView = (TextView) mView.findViewById(R.id.taskrow_TaskDesc);
+            taskDescView.setText(taskDesc);
+        }
+
+        public void setUid(String incomingUid) {
+            uid = incomingUid;
+        }
+
+        public String getUid() {
+            return uid;
         }
     }
 
@@ -127,8 +198,8 @@ public class TasksFragment extends Fragment{
         final View newView = LayoutInflater.from(v.getContext()).inflate(R.layout.content_inner_tasks_createalert, null); // Well, indians told me to null..
 
         // Initialize the elements after the view has been initialized
-        final EditText taskName = (EditText) newView.findViewById(R.id.taskName);
-        EditText taskDesc = (EditText) newView.findViewById(R.id.taskDesc);
+        final EditText taskName = (EditText) newView.findViewById(R.id.createalert_TaskName);
+        final EditText taskDesc = (EditText) newView.findViewById(R.id.createalert_TaskDesc);
         //Button createTaskBtn = (Button) newView.findViewById(R.id.createTask_btnCreate);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
@@ -143,7 +214,7 @@ public class TasksFragment extends Fragment{
                 String Username = Singleton.INSTANCE.User.getDisplayName();
                 // String name = "User " + uid.substring(0, 6);
                 String taskname = taskName.getText().toString();
-                String taskdesc = taskName.getText().toString();
+                String taskdesc = taskDesc.getText().toString();
 
                 Tasks task = new Tasks(uid, Username, taskname, taskdesc);
 

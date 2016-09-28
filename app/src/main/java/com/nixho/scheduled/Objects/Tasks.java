@@ -11,6 +11,10 @@ public class Tasks {
     private String TaskDescription;
     private String ImageUrl;
 
+    public Tasks() {
+
+    }
+
     public Tasks(String userId, String usernName, String taskName, String taskDescription) {
         UserId = userId;
         UserName = usernName;
