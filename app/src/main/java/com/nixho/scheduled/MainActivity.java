@@ -27,8 +27,9 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.nixho.scheduled.Authentication.InternalLayer;
-import com.nixho.scheduled.Utilities.Singleton;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.Serializable;
 
@@ -37,32 +38,75 @@ import static com.google.firebase.auth.GoogleAuthProvider.getCredential;
 public class MainActivity extends ActivityExtension implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, View.OnClickListener, Serializable {
     /**
      * All the variables/objects instantiated here is implicitly made for this class only.
-     * <p>
+     *
      * Should you require re-using these objects or variables, I would suggest you to create a unified
      * class that stores such variables or objects to prevent spaghettification.
      */
     SignInButton googleSignInButton; // The Google Sign In Button
     Intent innerIntent; // We'll be using this intent to bring the user to an activity after successful authentication.
     private static final String TAG = "SignInActivity"; // Just a name.
-    private static GoogleSignInAccount currUser; // Current User to come in IF he's from Google
+    private GoogleSignInAccount currUser; // Current User to come in IF he's from Google
+
+    public FirebaseApp firebase;
+    public static DatabaseReference rootRef = FirebaseDatabase.getInstance().getReferenceFromUrl("https://scheduled-7f23b.firebaseio.com/"); // We'll have to utilize the new Firebase 3.0 APIs
+
+    /* Create the Firebase ref that is used for all authentication with Firebase */
+    //public Firebase firebase = new Firebase("https://scheduled-7f23b.firebaseio.com"); // Deprecated Code from Firebase 2.0
+
+    // Data from the authenticated user
+    //public AuthData mAuthData = firebase.getAuth(); // Deprecated Code from Firebase 2.0
+
+    /**
+     * We'll have to store all of the user's data here.
+     *
+     * Having FirebaseUser instead of GoogleSignInAccount has 2 main advantages:
+     *
+     * - You don't have to instantiate a new User object specific to that service
+     * when you use it. (i.e. You need to use GoogleSignInAccount object when the user is a Google
+     * Account. You just need to use FirebaseUser for all the various types.)
+     *
+     * - Once you add in a new OAuth service, you just need to provide the relevant user
+     * information, instantiate the FirebaseUser object, and use it for every single class when
+     * you need to access the user's information. That way you can code permanent methods to
+     * retrieve the user's data without compromising the power to scale with more OAuth Services.
+     */
+    public static FirebaseUser User;
+
+    public static FirebaseAuth mAuth; // Just like GoogleApiClient, but this is towards Firebase Authentication.
+
+    // This is FirebaseAuth's Buddy Object. He is a listener that allows previously logged users
+    // to "Auto" Authenticate upon the launch of the app with a method called onAuthStateChanged
+    // in order to validate the returning user's token.
+    public FirebaseAuth.AuthStateListener mAuthListener;
+
+    // Instantiate a basic progress dialog while performing authentication.
+    public static ProgressDialog progress; // Well, in case the user has shitty internet access, this progress dialog can be shown to make him wait for a moment.
+
 
     /**
      * RC_SIGN in is the request code you will assign for starting the new activity. this can
      * be any number. When the user is done with the subsequent activity and returns, the system
      * calls your activity's onActivityResult() method.
-     * <p>
+     *
      * More information can be found here: https://developer.android.com/training/basics/intents/result.html?hl=es
      */
     private static final int RC_SIGN_IN = 9001;
-    //public GoogleApiClient mGoogleApiClient; // This is your buddy to Google. He'll be helping you out to authenticate via Play Services.
+    public static GoogleApiClient mGoogleApiClient; // This is your buddy to Google. He'll be helping you out to authenticate via Play Services.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /**
+         * FirebaseApp.InitializeApp
+         *
+         * initializeApp(Context, FirebaseOptions) initializes the default app instance.
+         * This method should be invoked from Application. This is also necessary if it
+         * is used outside of the application's main process.
+         */
         //Firebase.setAndroidContext(this); Deprecated, Firebase 2 Code
-        FirebaseApp.initializeApp(this); // New, Firebase 3 Code
+        firebase.initializeApp(this); // New, Firebase 3 Code
 
         // We need to point to what the innerIntent is going to launch.
         innerIntent = new Intent(this, InnerMainActivity.class);
@@ -76,16 +120,19 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
 
         // Progress Dialog for Persistent Authentication
         // http://stackoverflow.com/questions/12841803/best-way-to-show-a-loading-spinner
-        Singleton.INSTANCE.progress = new ProgressDialog(this);
-        Singleton.INSTANCE.progress.setTitle("Loading...");
-        Singleton.INSTANCE.progress.setMessage("Performing cleanup!");
-        Singleton.INSTANCE.progress.show();
+        progress = new ProgressDialog(this);
+        progress.setTitle("Loading...");
+        progress.setMessage("Performing cleanup!");
+        progress.show();
 
         // Firebase Authentication Initialization
-        Singleton.INSTANCE.mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
+        /**
+         * Useless code, need to understand what I was doing previously again..
+         */
         // Firebase Auth Initialization
-        Singleton.INSTANCE.mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+        mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth != null) {
@@ -106,16 +153,45 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
         });
 
         // Google Authentication Initialization
-        Singleton.INSTANCE.mGoogleApiClient = new GoogleApiClient.Builder(this)
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* Fragment Activity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(AppIndex.API)
-                .build();
-        Singleton.INSTANCE.mGoogleApiClient.connect();
 
-        Singleton.INSTANCE.mAuthListener = new FirebaseAuth.AuthStateListener() {
+                /**
+                 * Registers a listener to receive connection events from this GoogleApiClient.
+                 * Applications should balance calls to this method with calls to
+                 * unregisterConnectionCallbacks(ConnectionCallbacks) to avoid leaking resources.
+
+                 If the specified listener is already registered to receive connection events,
+                 this method will not add a duplicate entry for the same listener.
+
+                 Note that the order of messages received here may not be stable, so
+                 clients should not rely on the order that multiple listeners receive events in.
+                 */
+                .addConnectionCallbacks(this)
+
+                /**
+                 * https://developers.google.com/android/reference/com/google/android/gms/common/api/GoogleApiClient.OnConnectionFailedListener
+                 *
+                 * A ConnectionResult that can be used for resolving the error, and
+                 * deciding what sort of error occurred. To resolve the error, the
+                 * resolution must be started from an activity with a non-negative requestCode
+                 * passed to startResolutionForResult(Activity, int). Applications should
+                 * implement onActivityResult in their Activity to call connect() again
+                 * if the user has resolved the issue (resultCode is RESULT_OK).
+                 */
+                .addOnConnectionFailedListener(this) // Add a fail listener should connection fail,
+                // so that we can throw the user something and loop back without any app crashes.
+
+                // https://developers.google.com/android/guides/api-client
+                .addApi(AppIndex.API)
+
+
+                .build();
+
+        mGoogleApiClient.connect(); // Connect to Google..
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
             /**
              * @param firebaseAuth
              * This method gets invoked in the UI thread on changes in the authentication state:
@@ -128,18 +204,18 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
              */
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                Singleton.INSTANCE.User = firebaseAuth.getCurrentUser();
-                if (Singleton.INSTANCE.User != null) {
+                User = firebaseAuth.getCurrentUser();
+                if (User != null) {
                     // User is signed in
                     //Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     //innerIntent.putExtra("GoogleAccount", currUser); // Because we're pushing the currUser into the intent, we don't need it to be public anymore.
 
                     startActivity(innerIntent);
-                    Singleton.INSTANCE.progress.hide();
+                    //progress.hide();
                 } else {
                     // User is signed out
                     //Log.d(TAG, "onAuthStateChanged:signed_out");
-                    Singleton.INSTANCE.progress.hide();
+                    progress.hide();
 
                     // Implement a redirector when a user logs out
                     // http://stackoverflow.com/questions/37533745/firebase-authentication-auth-state-changed
@@ -157,6 +233,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
 
         googleSignInButton = (SignInButton) findViewById(R.id.googleSignInButton);
         googleSignInButton.setOnClickListener(this);
+
         // Customize sign-in button. The sign-in button can be displayed in
         // multiple sizes and color schemes. It can also be contextually
         // rendered based on the requested scopes. For example. a red button may
@@ -183,7 +260,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
     }
 
     public void signIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(Singleton.INSTANCE.mGoogleApiClient);
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
@@ -208,7 +285,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
         innerIntent = new Intent(this, InnerMainActivity.class);
 
         AuthCredential credential = getCredential(acct.getIdToken(), null);
-        Singleton.INSTANCE.mAuth.signInWithCredential(credential)
+        mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -226,6 +303,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
                         innerIntent.putExtra("GoogleAccount", currUser); // Because we're pushing the currUser into the intent, we don't need it to be public anymore.
 
                         startActivity(innerIntent);
+                        progress.hide();
                     }
                 });
     }
@@ -271,7 +349,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
     }
 
     private void signOut() {
-        Auth.GoogleSignInApi.signOut(Singleton.INSTANCE.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
             @Override
             public void onResult(@NonNull Status status) {
                 //statusTextView.setText("Signed Out");
@@ -299,7 +377,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
     public void onStart() {
         super.onStart();
 
-        Singleton.INSTANCE.mAuth.addAuthStateListener(Singleton.INSTANCE.mAuthListener);
+        mAuth.addAuthStateListener(mAuthListener);
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         //mGoogleApiClient.connect();
@@ -309,8 +387,8 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
     @Override
     public void onStop() {
         super.onStop();
-        if (Singleton.INSTANCE.mAuthListener != null) {
-            Singleton.INSTANCE.mAuth.removeAuthStateListener(Singleton.INSTANCE.mAuthListener);
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
         }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.

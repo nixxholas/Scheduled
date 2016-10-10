@@ -15,19 +15,16 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.android.gms.nearby.messages.internal.Update;
 import com.google.firebase.database.DatabaseReference;
-import com.nixho.scheduled.ActivityExtension;
-import com.nixho.scheduled.InnerMainActivity;
 import com.nixho.scheduled.Objects.Tasks;
 import com.nixho.scheduled.R;
-import com.nixho.scheduled.Utilities.Singleton;
+
+import static com.nixho.scheduled.MainActivity.User;
+import static com.nixho.scheduled.MainActivity.rootRef;
 
 /**
  * Created by nixho on 28-Sep-16.
@@ -74,12 +71,15 @@ public class TasksFragment extends Fragment{
          *
          * DatabaseReference is the updated Object for Firebase 3.0
          */
-        final DatabaseReference tasksRef = Singleton.INSTANCE.rootRef.child("Tasks"); // Setup the Database Reference
+        final DatabaseReference tasksRef = rootRef.child("Tasks"); // Setup the Database Reference
 
         // Setup the RecyclerView, a place to show all the tasks
         final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.tasks_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        /**
+         * PLEASE READ ALL THE COMMENTS BEFORE REUSING THE CODE BELOW.
+         */
         final FirebaseRecyclerAdapter<Tasks, TaskViewHolder> adapter =
                 new FirebaseRecyclerAdapter<Tasks, TaskViewHolder>(
                         Tasks.class, // We need to inform the Adapter what kind of datatype we're taking in.
@@ -90,6 +90,7 @@ public class TasksFragment extends Fragment{
                                               // that will help us to inject the Tasks object into the taskrow layout.
                         tasksRef // Basically the DatabaseReference we're taking the object from.
                 ) {
+                    
                     /**
                      * Populating the RecyclerView..
                      *
@@ -241,8 +242,8 @@ public class TasksFragment extends Fragment{
 
         builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                String uid = Singleton.INSTANCE.User.getUid();
-                String Username = Singleton.INSTANCE.User.getDisplayName();
+                String uid = User.getUid();
+                String Username = User.getDisplayName();
                 // String name = "User " + uid.substring(0, 6);
                 String taskname = taskName.getText().toString();
                 String taskdesc = taskDesc.getText().toString();
@@ -250,7 +251,7 @@ public class TasksFragment extends Fragment{
 
                 Tasks task = new Tasks(uid, Username, taskname, taskdesc, taskCal);
 
-                Singleton.INSTANCE.rootRef.child("Tasks").push().setValue(task);
+                rootRef.child("Tasks").push().setValue(task);
             }
         });
 

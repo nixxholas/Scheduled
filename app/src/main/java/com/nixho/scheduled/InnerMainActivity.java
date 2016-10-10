@@ -4,10 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,14 +20,18 @@ import android.widget.Toast;
 import com.google.android.gms.plus.Plus;
 import com.nixho.scheduled.Fragments.CalendarFragment;
 import com.nixho.scheduled.Fragments.TasksFragment;
-import com.nixho.scheduled.Utilities.Singleton;
 
 import static android.content.ContentValues.TAG;
 import static com.nixho.scheduled.Fragments.TasksFragment.createTaskView;
+import static com.nixho.scheduled.MainActivity.User;
+import static com.nixho.scheduled.MainActivity.mAuth;
+import static com.nixho.scheduled.MainActivity.mGoogleApiClient;
 
 public class InnerMainActivity extends ActivityExtension
         implements NavigationView.OnNavigationItemSelectedListener {
-    ImageView profilePicture;
+    ImageView profilePicture; // Placeholder to store the user's profile picture
+    private FloatingActionButton FloatingButton;
+    public static CalendarView calendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +40,10 @@ public class InnerMainActivity extends ActivityExtension
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         // Setup the CalendarView
-        Singleton.INSTANCE.calendar = (CalendarView) findViewById(R.id.MainCalendar);
+        calendar = (CalendarView) findViewById(R.id.MainCalendar);
 
         // https://www.youtube.com/watch?v=ZHLCfqN-60A
-        Singleton.INSTANCE.calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+        calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
                 Toast.makeText(view.getContext(), "Year=" + year + " Month=" + month + " Day=" + dayOfMonth, Toast.LENGTH_LONG).show();
             }
@@ -51,13 +52,13 @@ public class InnerMainActivity extends ActivityExtension
         setSupportActionBar(toolbar);
 
         // Initialize the Universal Floating Button
-        Singleton.INSTANCE.FloatingButton = (FloatingActionButton) findViewById(R.id.InnerActivityFAButton);
+        FloatingButton = (FloatingActionButton) findViewById(R.id.InnerActivityFAButton);
         /**
          * Handling Fragment OnClicks via the Floating Action Button like a boss
          *
          * http://stackoverflow.com/questions/6750069/get-the-current-fragment-object
          */
-        Singleton.INSTANCE.FloatingButton.setOnClickListener(new View.OnClickListener() {
+        FloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String currentTitle = getTitle().toString(); // Get the Title from the action bar.
@@ -138,6 +139,14 @@ public class InnerMainActivity extends ActivityExtension
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+
+        /**
+         * FragmentManager
+         *
+         * The FragmentManager obejct helps us to manage all of the Fragments that we have
+         * instantiated, helps us replace the current fragment over another without having to
+         * run lots of lines of code for that.
+         */
         FragmentManager manager = getSupportFragmentManager(); // Initialize the FragmentManager
 
         switch (id) {
@@ -145,6 +154,17 @@ public class InnerMainActivity extends ActivityExtension
                 CalendarFragment calendarFragment = new CalendarFragment(); // Create an object from the fragment
                 setTitle(R.string.title_activity_inner_main);
 
+                // The set of code below is probably broken somewhere..
+                // NullPointerException somewhere...
+
+                /**
+                 * .replace
+                 *
+                 * When applying .replace to the different sources of fragments, we'll be able to
+                 * replace the existing fragment with another one, without even having the need
+                 * to close/remove the existing fragment. FragmentManager helps us to achieve this without
+                 * the need of doing anything about it.
+                 */
                 manager.beginTransaction().replace(R.id.mainContent, calendarFragment, calendarFragment.getTag())
                         //.setTransitionStyle()
                         .commit();
@@ -183,23 +203,23 @@ public class InnerMainActivity extends ActivityExtension
     public void logout() {
         Log.e(TAG, "Running Logout()");
 
-        if (Singleton.INSTANCE.mAuth != null) {
+        if (mAuth != null) {
             /* logout of Firebase */
-            Singleton.INSTANCE.mAuth.signOut();
+            mAuth.signOut();
             //firebase.unauth(); // Deprecated code from FireBase 2.X
 
             /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
              * Google+ after logging out of Firebase. */
             //if (mAuthData.getProvider().equals("google")) {
                 /* Logout from Google+ */
-            if (Singleton.INSTANCE.mGoogleApiClient.isConnected()) {
-                Plus.AccountApi.clearDefaultAccount(Singleton.INSTANCE.mGoogleApiClient);
-                Singleton.INSTANCE.mGoogleApiClient.disconnect();
+            if (mGoogleApiClient.isConnected()) {
+                Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                mGoogleApiClient.disconnect();
             }
             //}
 
             /* Update authenticated user and show login buttons */
-            Singleton.INSTANCE.User = null;
+            User = null;
             //setAuthenticatedUser(null);
         }
     }
