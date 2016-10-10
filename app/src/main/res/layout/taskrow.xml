@@ -1,16 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Creating a CardView
 https://www.youtube.com/watch?v=Yx8lRrclCYo&index=6&list=PLGCjwl1RrtcSvDCxDfJb-eqwneCe934mv -->
+
+<!--
+    Implementing Material Design Effects on CardView
+    http://stackoverflow.com/questions/31998325/no-ripple-effect-on-touch-in-recyclerview
+
+    These lines must be included in order for Material Ripple to work.
+
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground" : This is for API Level 19 and above
+    android:background="?android:selectableItemBackground"> While this is for backwards compatible APIs
+-->
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/taskrow_CardView"
+    android:elevation="2sp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:background="?android:selectableItemBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/activity_vertical_margin">
+    android:layout_margin="@dimen/activity_vertical_margin"
+    android:transitionName="@string/transition_taskcard">
 
     <LinearLayout
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
+        android:padding="@dimen/activity_horizontal_margin"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
@@ -33,7 +32,7 @@ import com.nixho.scheduled.Utilities.Singleton;
 
 import java.io.Serializable;
 
-import static com.google.firebase.auth.GoogleAuthProvider.*;
+import static com.google.firebase.auth.GoogleAuthProvider.getCredential;
 
 public class MainActivity extends ActivityExtension implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, View.OnClickListener, Serializable {
     /**
@@ -42,13 +41,11 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
      * Should you require re-using these objects or variables, I would suggest you to create a unified
      * class that stores such variables or objects to prevent spaghettification.
      */
-    private InternalLayer AuthHelper; // Let's call it AuthHelper, to help us
     SignInButton googleSignInButton; // The Google Sign In Button
-    //Button defaultSignInButton; // The usual sign in button
     Intent innerIntent; // We'll be using this intent to bring the user to an activity after successful authentication.
-    //Intent defaultSignInIntent; // This will be used to bring the user to the default sign in activity.
     private static final String TAG = "SignInActivity"; // Just a name.
     private static GoogleSignInAccount currUser; // Current User to come in IF he's from Google
+
     /**
      * RC_SIGN in is the request code you will assign for starting the new activity. this can
      * be any number. When the user is done with the subsequent activity and returns, the system

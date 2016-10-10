@@ -4,6 +4,12 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+/**
+ * ActivityExtension Class
+ *
+ * Introduced to provide one solution
+ * - Solve the need to apply global "settings" on all activities
+ */
 public class ActivityExtension extends AppCompatActivity {
 
     @Override

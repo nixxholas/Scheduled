@@ -3,6 +3,7 @@
     <string name="app_description">A simple agenda for people who value time.</string>
     <string name="title_activity_inner_main">Calendar</string>
     <string name="title_activity_inner_tasks">Tasks</string>
+    <string name="title_activity_inner_task_update">Update Task</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -27,4 +28,5 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="transition_taskcard">Task Card Transition</string>
 </resources>

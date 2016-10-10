@@ -3,34 +3,34 @@ package com.nixho.scheduled;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.nixho.scheduled.Authentication.InternalLayer;
+import com.google.android.gms.plus.Plus;
 import com.nixho.scheduled.Fragments.CalendarFragment;
 import com.nixho.scheduled.Fragments.TasksFragment;
 import com.nixho.scheduled.Utilities.Singleton;
 
+import static android.content.ContentValues.TAG;
 import static com.nixho.scheduled.Fragments.TasksFragment.createTaskView;
 
 public class InnerMainActivity extends ActivityExtension
         implements NavigationView.OnNavigationItemSelectedListener {
     ImageView profilePicture;
-    InternalLayer IL = new InternalLayer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class InnerMainActivity extends ActivityExtension
         // https://www.youtube.com/watch?v=ZHLCfqN-60A
         Singleton.INSTANCE.calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
-                    Toast.makeText(view.getContext(), "Year=" + year + " Month=" + month + " Day=" + dayOfMonth, Toast.LENGTH_LONG).show();
+                Toast.makeText(view.getContext(), "Year=" + year + " Month=" + month + " Day=" + dayOfMonth, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -145,7 +145,9 @@ public class InnerMainActivity extends ActivityExtension
                 CalendarFragment calendarFragment = new CalendarFragment(); // Create an object from the fragment
                 setTitle(R.string.title_activity_inner_main);
 
-                manager.beginTransaction().replace(R.id.mainContent, calendarFragment, calendarFragment.getTag()).commit();
+                manager.beginTransaction().replace(R.id.mainContent, calendarFragment, calendarFragment.getTag())
+                        //.setTransitionStyle()
+                        .commit();
                 break;
             case R.id.nav_tasks:
                 TasksFragment tasksFragment = new TasksFragment(); // Create an object from the fragment
@@ -154,7 +156,7 @@ public class InnerMainActivity extends ActivityExtension
                 manager.beginTransaction().replace(R.id.mainContent, tasksFragment, tasksFragment.getTag()).commit();
                 break;
             case R.id.sign_out:
-                IL.logout();
+                logout();
                 Intent mainIntent = new Intent(InnerMainActivity.this, MainActivity.class);
 
                 // Intent flag to prevent the activity to be "back"able
@@ -173,4 +175,57 @@ public class InnerMainActivity extends ActivityExtension
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+    /**
+     * Unauthenticate from Firebase and from providers where necessary.
+     */
+    public void logout() {
+        Log.e(TAG, "Running Logout()");
+
+        if (Singleton.INSTANCE.mAuth != null) {
+            /* logout of Firebase */
+            Singleton.INSTANCE.mAuth.signOut();
+            //firebase.unauth(); // Deprecated code from FireBase 2.X
+
+            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
+             * Google+ after logging out of Firebase. */
+            //if (mAuthData.getProvider().equals("google")) {
+                /* Logout from Google+ */
+            if (Singleton.INSTANCE.mGoogleApiClient.isConnected()) {
+                Plus.AccountApi.clearDefaultAccount(Singleton.INSTANCE.mGoogleApiClient);
+                Singleton.INSTANCE.mGoogleApiClient.disconnect();
+            }
+            //}
+
+            /* Update authenticated user and show login buttons */
+            Singleton.INSTANCE.User = null;
+            //setAuthenticatedUser(null);
+        }
+    }
+
+    /**
+     * Once a user is logged in, take the mAuthData provided from Firebase and "use" it.
+     *
+     * Deprecated and useless
+     */
+    /*private void setAuthenticatedUser(FirebaseAuth authData) {
+        if (authData != null) {
+            *//* show a provider specific status text *//*
+            String name = null;
+            if (authData.getProvider().equals("google")) {
+                name = (String) authData.getProviderData().get("displayName");
+            } else if (authData.getProvider().equals("password")) {
+                name = authData.getUid();
+            } else {
+                Log.e(TAG, "Invalid provider: " + authData.getProvider());
+            }
+            if (name != null) {
+                //mLoggedInStatusTextView.setText("Logged in as " + name + " (" + authData.getProvider() + ")");
+            }
+        }
+        mAuth = authData;
+        Log.e(TAG,"Successfully Nullified mAuthData");
+    }*/
+
 }

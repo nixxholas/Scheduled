@@ -1,5 +1,9 @@
 package com.nixho.scheduled.Objects;
 
+import android.icu.util.Calendar;
+
+import java.util.Date;
+
 /**
  * Created by nixho on 28-Sep-16.
  */
@@ -9,17 +13,19 @@ public class Tasks {
     private String UserName;
     private String TaskName;
     private String TaskDescription;
+    private String TaskDeadline;
     private String ImageUrl;
 
     public Tasks() {
 
     }
 
-    public Tasks(String userId, String usernName, String taskName, String taskDescription) {
+    public Tasks(String userId, String usernName, String taskName, String taskDescription, String taskDeadline) {
         UserId = userId;
         UserName = usernName;
         TaskName = taskName;
         TaskDescription = taskDescription;
+        TaskDeadline = taskDeadline;
     }
 
     public String getUserId() {
@@ -60,5 +66,13 @@ public class Tasks {
 
     public void setImageUrl(String imageUrl) {
         ImageUrl = imageUrl;
+    }
+
+    public String getTaskDeadline() {
+        return TaskDeadline;
+    }
+
+    public void setTaskDeadline(String taskDeadline) {
+        TaskDeadline = taskDeadline;
     }
 }

@@ -21,6 +21,8 @@ import com.google.firebase.database.FirebaseDatabase;
  * However, since we're newer than Java 1.6, let's use Enumerators
  * http://stackoverflow.com/questions/8027701/singleton-using-enum
  *
+ * Why Singleton is bad
+ * http://programmers.stackexchange.com/questions/40373/so-singletons-are-bad-then-what
  *
  */
 

@@ -45,6 +45,15 @@
         android:layout_height="wrap_content"
         android:hint="@string/create_task_task_details" />
 
+    <EditText
+        android:focusable="false"
+        android:id="@+id/createalert_TaskDate"
+        android:layout_marginLeft="@dimen/dialogactivity_side_margins"
+        android:layout_marginRight="@dimen/dialogactivity_side_margins"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Select a date"/>
+
 <!--        <Button
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:id="@+id/createTask_btnCreate"

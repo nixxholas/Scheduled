@@ -1,34 +1,33 @@
 package com.nixho.scheduled.Fragments;
 
-import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.android.gms.nearby.messages.internal.Update;
 import com.google.firebase.database.DatabaseReference;
+import com.nixho.scheduled.ActivityExtension;
 import com.nixho.scheduled.InnerMainActivity;
 import com.nixho.scheduled.Objects.Tasks;
 import com.nixho.scheduled.R;
 import com.nixho.scheduled.Utilities.Singleton;
-
-import static com.google.android.gms.plus.PlusOneDummyView.TAG;
 
 /**
  * Created by nixho on 28-Sep-16.
@@ -49,7 +48,6 @@ import static com.google.android.gms.plus.PlusOneDummyView.TAG;
  */
 
 public class TasksFragment extends Fragment{
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,14 +105,35 @@ public class TasksFragment extends Fragment{
                      * http://stackoverflow.com/questions/37568703/how-to-get-keys-and-values-using-firebaselistadapter
                      */
                     @Override
-                    protected void populateViewHolder(TaskViewHolder viewHolder, Tasks task, int position) {
-                        DatabaseReference currRef = getRef(position);
+                    protected void populateViewHolder(TaskViewHolder viewHolder, final Tasks task, int position) {
+                        //DatabaseReference currRef = getRef(position);
 
                         // Basically we need to attach the task to the viewHolder so that
                         // the cards can instantiate their view properly
                         viewHolder.setTaskName(task.getTaskName());
                         viewHolder.setTaskDesc(task.getTaskDescription());
-                        viewHolder.setUid(currRef.getKey());
+
+                        final Intent updateView = new Intent(getActivity(), UpdateTaskActivity.class);
+                        updateView.putExtra("TaskName", task.getTaskName());
+                        updateView.putExtra("TaskDesc", task.getTaskDescription());
+
+                        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                /**
+                                 * How to provide a foundation to animate cards
+                                 *
+                                 * http://stackoverflow.com/questions/27300441/how-do-i-expand-cardviews-to-show-more-detail-like-google-keep-cards
+                                 */
+                                ActivityOptionsCompat options =
+                                        ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+                                                v,   // The view which starts the transition
+                                                getString(R.string.transition_taskcard)    // The transitionName of the view we’re transitioning to
+                                        );
+
+                                ActivityCompat.startActivity(getActivity(), updateView, options.toBundle());
+                            }
+                        });
                     }
                 };
 
@@ -161,9 +180,8 @@ public class TasksFragment extends Fragment{
      *
      * Only use this when you wanna learn RecyclerView
      */
-    public static class TaskViewHolder extends RecyclerView.ViewHolder {
+    public static class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         View mView;
-        String uid;
 
         public TaskViewHolder(View v) {
             super(v);
@@ -184,12 +202,24 @@ public class TasksFragment extends Fragment{
             taskDescView.setText(taskDesc);
         }
 
-        public void setUid(String incomingUid) {
-            uid = incomingUid;
-        }
+        @Override
+        public void onClick(View v) {
 
-        public String getUid() {
-            return uid;
+            // We'll need to create the new view here.
+            // Check if we're running on Android 5.0 or higher
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // Call some material design APIs here
+                /*ActivityOptionsCompat options =
+                        ActivityOptionsCompat.makeSceneTransitionAnimation(TasksFragment.class,
+                                v,   // The view which starts the transition
+                                ""    // The transitionName of the view we’re transitioning to
+                        );
+                ActivityCompat.startActivity(activity, intent, options.toBundle());*/
+
+            } else {
+                // Implement this feature without material design
+            }
+
         }
     }
 
@@ -200,6 +230,7 @@ public class TasksFragment extends Fragment{
         // Initialize the elements after the view has been initialized
         final EditText taskName = (EditText) newView.findViewById(R.id.createalert_TaskName);
         final EditText taskDesc = (EditText) newView.findViewById(R.id.createalert_TaskDesc);
+        final EditText taskDate = (EditText) newView.findViewById(R.id.createalert_TaskDate);
         //Button createTaskBtn = (Button) newView.findViewById(R.id.createTask_btnCreate);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
@@ -215,11 +246,11 @@ public class TasksFragment extends Fragment{
                 // String name = "User " + uid.substring(0, 6);
                 String taskname = taskName.getText().toString();
                 String taskdesc = taskDesc.getText().toString();
+                String taskCal = taskDate.getText().toString();
 
-                Tasks task = new Tasks(uid, Username, taskname, taskdesc);
+                Tasks task = new Tasks(uid, Username, taskname, taskdesc, taskCal);
 
                 Singleton.INSTANCE.rootRef.child("Tasks").push().setValue(task);
-
             }
         });
 
@@ -233,4 +264,5 @@ public class TasksFragment extends Fragment{
 
         alert.show();
     }
+
 }
