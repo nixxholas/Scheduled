@@ -14,13 +14,15 @@ import android.widget.Toast;
 
 import com.nixho.scheduled.R;
 
-import static com.nixho.scheduled.InnerMainActivity.calendar;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by nixho on 28-Sep-16.
  */
 
 public class CalendarFragment extends Fragment {
+    @BindView(R.id.MainCalendar) CalendarView calendar;
     
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -34,6 +36,9 @@ public class CalendarFragment extends Fragment {
         }
 
         View view = inflater.inflate(R.layout.content_inner_main, container, false);
+
+        // ButterKnife once again
+        ButterKnife.bind(this, view);
 
         // Setup the CalendarView
         calendar = (CalendarView) view.findViewById(R.id.MainCalendar);

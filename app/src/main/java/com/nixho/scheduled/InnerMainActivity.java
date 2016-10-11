@@ -21,6 +21,9 @@ import com.google.android.gms.plus.Plus;
 import com.nixho.scheduled.Fragments.CalendarFragment;
 import com.nixho.scheduled.Fragments.TasksFragment;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static android.content.ContentValues.TAG;
 import static com.nixho.scheduled.Fragments.TasksFragment.createTaskView;
 import static com.nixho.scheduled.MainActivity.User;
@@ -29,18 +32,40 @@ import static com.nixho.scheduled.MainActivity.mGoogleApiClient;
 
 public class InnerMainActivity extends ActivityExtension
         implements NavigationView.OnNavigationItemSelectedListener {
+    /**
+     * Before you attempt to public static any view from your layouts,
+     * read this first.
+     *
+     * http://stackoverflow.com/questions/11908039/android-static-fields-and-memory-leaks
+     *
+     * Doing public static CalendarView calendar for example is bad, and will result in
+     * memory leaks.
+     */
     ImageView profilePicture; // Placeholder to store the user's profile picture
-    private FloatingActionButton FloatingButton;
-    public static CalendarView calendar;
+
+    /**
+     * The use of ButterKnife
+     *
+     * ButterKnife allows us to tidy up code for "linking" our xml objects
+     * with our code. So as you scroll through my code, you'll notice that
+     * the onCreate method wouldn't be so long due to ButterKnife.
+     */
+    @BindView(R.id.InnerActivityFAButton) FloatingActionButton FloatingButton;
+    @BindView(R.id.MainCalendar) CalendarView calendar;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.drawer_layout) DrawerLayout drawer;
+    @BindView(R.id.nav_view) NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inner_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this); // Bind ButterKnife to this activity so that it can be used.
+
+        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         // Setup the CalendarView
-        calendar = (CalendarView) findViewById(R.id.MainCalendar);
+        //calendar = (CalendarView) findViewById(R.id.MainCalendar);
 
         // https://www.youtube.com/watch?v=ZHLCfqN-60A
         calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
@@ -52,7 +77,8 @@ public class InnerMainActivity extends ActivityExtension
         setSupportActionBar(toolbar);
 
         // Initialize the Universal Floating Button
-        FloatingButton = (FloatingActionButton) findViewById(R.id.InnerActivityFAButton);
+        //FloatingButton = (FloatingActionButton) findViewById(R.id.InnerActivityFAButton);
+
         /**
          * Handling Fragment OnClicks via the Floating Action Button like a boss
          *
@@ -77,13 +103,19 @@ public class InnerMainActivity extends ActivityExtension
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        //DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+
+
+        // http://stackoverflow.com/questions/35639454/method-setdrawerlistener-is-deprecated
+        //drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
+
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        //NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         // We'll have to initialize the data
@@ -210,10 +242,10 @@ public class InnerMainActivity extends ActivityExtension
 
             /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
              * Google+ after logging out of Firebase. */
-            //if (mAuthData.getProvider().equals("google")) {
-                /* Logout from Google+ */
+            /* Logout from Google+ */
+            //if (mAuthData.getProvider().equals("google")) { // Deprecated Code
             if (mGoogleApiClient.isConnected()) {
-                Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                //Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
                 mGoogleApiClient.disconnect();
             }
             //}
