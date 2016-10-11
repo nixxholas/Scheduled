@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 
@@ -190,7 +191,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
                 // https://developers.google.com/android/guides/api-client
                 .addApi(AppIndex.API)
 
-
+                // Build!
                 .build();
 
         mGoogleApiClient.connect(); // Connect to Google..

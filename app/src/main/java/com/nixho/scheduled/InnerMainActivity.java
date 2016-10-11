@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -31,7 +32,7 @@ import static com.nixho.scheduled.MainActivity.User;
 import static com.nixho.scheduled.MainActivity.mAuth;
 import static com.nixho.scheduled.MainActivity.mGoogleApiClient;
 
-public class InnerMainActivity extends ActivityExtension
+public class InnerMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     /**
      * Before you attempt to public static any view from your layouts,

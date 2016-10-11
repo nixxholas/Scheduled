@@ -5,6 +5,12 @@
     <string name="title_activity_inner_tasks">Tasks</string>
     <string name="title_activity_inner_task_update">Update Task</string>
 
+    <string name="regularSignInButtonHint">Login</string>
+    <string name="regularSignUpButtonHint">Register</string>
+
+    <string name="main_edittext_username_hint">Username</string>
+    <string name="main_edittext_password_hint">Password</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
