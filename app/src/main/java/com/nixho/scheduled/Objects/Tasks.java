@@ -2,14 +2,18 @@ package com.nixho.scheduled.Objects;
 
 import android.icu.util.Calendar;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by nixho on 28-Sep-16.
+ *
+ * Why we need to have a serializable object.
+ * http://stackoverflow.com/questions/2139134/how-to-send-an-object-from-one-android-activity-to-another-using-intents
  */
 
-public class Tasks {
-    private String UserId;
+public class Tasks implements Serializable{
+    private String UniqueId;
     private String UserName;
     private String TaskName;
     private String TaskDescription;
@@ -20,20 +24,27 @@ public class Tasks {
 
     }
 
-    public Tasks(String userId, String usernName, String taskName, String taskDescription, String taskDeadline) {
-        UserId = userId;
-        UserName = usernName;
+    public Tasks(String userName, String taskName, String taskDescription, String taskDeadline) {
+        UserName = userName;
         TaskName = taskName;
         TaskDescription = taskDescription;
         TaskDeadline = taskDeadline;
     }
 
-    public String getUserId() {
-        return UserId;
+    public Tasks(String UID, String userName, String taskName, String taskDescription, String taskDeadline) {
+        UniqueId = UID;
+        UserName = userName;
+        TaskName = taskName;
+        TaskDescription = taskDescription;
+        TaskDeadline = taskDeadline;
     }
 
-    public void setUserId(String userId) {
-        UserId = userId;
+    public String getUniqueId() {
+        return UniqueId;
+    }
+
+    public void setUniqueId(String uniqueId) {
+        UniqueId = uniqueId;
     }
 
     public String getTaskName() {

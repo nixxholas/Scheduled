@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/registerActivity"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:transitionName="@string/transition_taskcard">
+
+    <TextView
+        android:layout_gravity="center"
+        android:textSize="36sp"
+        android:text="@string/mainregister_Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/mainregister_Username"
+        android:hint="Username"
+        android:layout_marginLeft="50sp"
+        android:layout_marginRight="50sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/mainregister_Password"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:layout_marginLeft="50sp"
+        android:layout_marginRight="50sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/mainregister_RegisterBtn"
+        android:text="@string/mainregister_RegisterBtn_text"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_gravity="center"
+        android:padding="15sp"
+        android:layout_marginLeft="20sp"
+        android:layout_marginRight="20sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

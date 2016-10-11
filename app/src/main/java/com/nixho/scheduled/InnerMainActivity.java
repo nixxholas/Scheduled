@@ -31,6 +31,7 @@ import static com.nixho.scheduled.Fragments.TasksFragment.createTaskView;
 import static com.nixho.scheduled.MainActivity.User;
 import static com.nixho.scheduled.MainActivity.mAuth;
 import static com.nixho.scheduled.MainActivity.mGoogleApiClient;
+import static com.nixho.scheduled.MainActivity.progress;
 
 public class InnerMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -62,6 +63,7 @@ public class InnerMainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inner_main);
+        progress.dismiss(); // Stop loading lmao
         ButterKnife.bind(this); // Bind ButterKnife to this activity so that it can be used.
 
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -93,10 +95,16 @@ public class InnerMainActivity extends AppCompatActivity
 
                 switch (currentTitle) {
                     case "Scheduled":
+                        FloatingButton.hide();
                         break;
                     case "Calendar":
+                        FloatingButton.hide();
                         break;
                     case "Tasks":
+                        if (!FloatingButton.isShown()) {
+                            FloatingButton.show();
+                        }
+
                         createTaskView(view); // Invokes the createTaskView method via the TasksFragment class
                         break;
                     default:

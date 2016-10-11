@@ -12,11 +12,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
@@ -44,7 +46,18 @@ import static com.nixho.scheduled.MainActivity.rootRef;
  * https://www.youtube.com/watch?v=cYinms8LurA
  */
 
-public class TasksFragment extends Fragment{
+public class TasksFragment extends Fragment {
+    private static String TAG = "TASKSFRAGMENT: ";
+
+    /**
+     * We are using the URL here instead of the Firebase Object
+     *
+     * Firebase ref = new Firebase("https://scheduled-7f23b.firebaseio.com/Zaki");
+     *
+     * DatabaseReference is the updated Object for Firebase 3.0
+     */
+    static final DatabaseReference tasksRef = rootRef.child(User.getUid()).child("Tasks"); // Setup the Database Reference
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,15 +76,6 @@ public class TasksFragment extends Fragment{
 
         // Setup the views
         final View view = inflater.inflate(R.layout.content_inner_tasks, container, false);
-
-        /**
-         * We are using the URL here instead of the Firebase Object
-         *
-         * Firebase ref = new Firebase("https://scheduled-7f23b.firebaseio.com/Zaki");
-         *
-         * DatabaseReference is the updated Object for Firebase 3.0
-         */
-        final DatabaseReference tasksRef = rootRef.child("Tasks"); // Setup the Database Reference
 
         // Setup the RecyclerView, a place to show all the tasks
         final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.tasks_recyclerView);
@@ -106,8 +110,12 @@ public class TasksFragment extends Fragment{
                      * http://stackoverflow.com/questions/37568703/how-to-get-keys-and-values-using-firebaselistadapter
                      */
                     @Override
-                    protected void populateViewHolder(TaskViewHolder viewHolder, final Tasks task, int position) {
-                        //DatabaseReference currRef = getRef(position);
+                    protected void populateViewHolder(TaskViewHolder viewHolder, Tasks task, int position) {
+                        // Get the key of the Tasks object
+                        //String currentKey = getRef(position).push().getKey();
+                        //final String currentKey = getRef(position).toString(); // This returns the object URL from Firebase
+                        final String currentKey = getRef(position).getKey();
+                        Log.d(TAG, currentKey.toString());
 
                         // Basically we need to attach the task to the viewHolder so that
                         // the cards can instantiate their view properly
@@ -115,8 +123,15 @@ public class TasksFragment extends Fragment{
                         viewHolder.setTaskDesc(task.getTaskDescription());
 
                         final Intent updateView = new Intent(getActivity(), UpdateTaskActivity.class);
-                        updateView.putExtra("TaskName", task.getTaskName());
-                        updateView.putExtra("TaskDesc", task.getTaskDescription());
+
+                        // Implement Serializable on the Tasks object,
+                        // Push the object directly via updateView.putExtra
+                        // That way we can have everything we need in the object.
+
+                        //updateView.putExtra("TaskName", task.getTaskName());
+                        //updateView.putExtra("TaskDesc", task.getTaskDescription());
+                        updateView.putExtra("TaskObject", task);
+                        updateView.putExtra("Key", currentKey);
 
                         viewHolder.mView.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -126,6 +141,8 @@ public class TasksFragment extends Fragment{
                                  *
                                  * http://stackoverflow.com/questions/27300441/how-do-i-expand-cardviews-to-show-more-detail-like-google-keep-cards
                                  */
+                                //Toast.makeText(getActivity(), currentKey, Toast.LENGTH_LONG).show(); // Test Line to Showcase the Key.
+
                                 ActivityOptionsCompat options =
                                         ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
                                                 v,   // The view which starts the transition
@@ -242,16 +259,24 @@ public class TasksFragment extends Fragment{
 
         builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                String uid = User.getUid();
+                //String uid = User.getUid();
                 String Username = User.getDisplayName();
                 // String name = "User " + uid.substring(0, 6);
                 String taskname = taskName.getText().toString();
                 String taskdesc = taskDesc.getText().toString();
                 String taskCal = taskDate.getText().toString();
 
-                Tasks task = new Tasks(uid, Username, taskname, taskdesc, taskCal);
+                Tasks task = new Tasks(Username, taskname, taskdesc, taskCal);
 
-                rootRef.child("Tasks").push().setValue(task);
+                String key = tasksRef.push().getKey();
+
+                task.setUniqueId(key);
+
+                // Users
+                // -> User's Unique ID
+                // --> Tasks
+                // ---> Task1..
+                tasksRef.push().setValue(task);
             }
         });
 

@@ -8,16 +8,28 @@
 
     <LinearLayout
         android:orientation="vertical"
+        android:paddingTop="50sp"
+        android:paddingLeft="30sp"
+        android:paddingRight="30sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <EditText
             android:id="@+id/taskrow_detailed_TaskName"
+            android:hint="@string/task_name_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/taskrow_detailed_TaskDesc"
+            android:hint="@string/task_desc_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/taskrow_submitBtn"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="@string/title_activity_inner_task_update"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

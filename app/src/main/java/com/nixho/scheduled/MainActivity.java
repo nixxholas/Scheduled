@@ -2,13 +2,18 @@ package com.nixho.scheduled;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -34,13 +39,17 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.Serializable;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 import static com.google.firebase.auth.GoogleAuthProvider.getCredential;
 
 /**
  *  ButterKnife
  *  https://github.com/JakeWharton/butterknife
  */
-public class MainActivity extends ActivityExtension implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, View.OnClickListener, Serializable {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, View.OnClickListener, Serializable {
     /**
      * All the variables/objects instantiated here is implicitly made for this class only.
      *
@@ -52,7 +61,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
     private static final String TAG = "SignInActivity"; // Just a name.
     private GoogleSignInAccount currUser; // Current User to come in IF he's from Google
 
-    public FirebaseApp firebase;
+    //public static FirebaseApp mFirebaseApp;
     public static DatabaseReference rootRef = FirebaseDatabase.getInstance().getReferenceFromUrl("https://scheduled-7f23b.firebaseio.com/"); // We'll have to utilize the new Firebase 3.0 APIs
 
     /* Create the Firebase ref that is used for all authentication with Firebase */
@@ -98,10 +107,18 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
     private static final int RC_SIGN_IN = 9001;
     public static GoogleApiClient mGoogleApiClient; // This is your buddy to Google. He'll be helping you out to authenticate via Play Services.
 
+    // Initialize some of the Widgets
+    @BindView(R.id.regularSignUpButton) Button signupButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
+        // Fix the orientation to portrait
+        // http://stackoverflow.com/questions/7153078/disable-landscape-mode-for-a-whole-application
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         /**
          * FirebaseApp.InitializeApp
@@ -111,7 +128,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
          * is used outside of the application's main process.
          */
         //Firebase.setAndroidContext(this); Deprecated, Firebase 2 Code
-        firebase.initializeApp(this); // New, Firebase 3 Code
+        FirebaseApp.initializeApp(this); // New, Firebase 3 Code
 
         // We need to point to what the innerIntent is going to launch.
         innerIntent = new Intent(this, InnerMainActivity.class);
@@ -259,12 +276,23 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.googleSignInButton:
+                progress.setTitle("Loading...");
+                progress.setMessage("Authenticating!");
                 signIn();
                 break;
         }
     }
 
+    @OnClick(R.id.regularSignUpButton)
+    public void signUp() {
+        // Launch the intent for the register activity
+        Intent signUpIntent = new Intent(this, RegisterMain.class);
+
+        startActivity(signUpIntent);
+    }
+
     public void signIn() {
+        progress.show();
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -282,6 +310,7 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
             GoogleSignInAccount account = result.getSignInAccount();
             firebaseAuthWithGoogle(account);
         }
+
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
@@ -360,22 +389,6 @@ public class MainActivity extends ActivityExtension implements GoogleApiClient.O
                 //statusTextView.setText("Signed Out");
             }
         });
-    }
-
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    public Action getIndexApiAction() {
-        Thing object = new Thing.Builder()
-                .setName("Main Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
-                .build();
-        return new Action.Builder(Action.TYPE_VIEW)
-                .setObject(object)
-                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
-                .build();
     }
 
     @Override

@@ -1,37 +1,72 @@
 package com.nixho.scheduled.Fragments;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.transition.Explode;
 import android.transition.Slide;
+import android.util.Log;
+import android.widget.Button;
 import android.widget.EditText;
 
-import com.nixho.scheduled.ActivityExtension;
+import com.nixho.scheduled.Objects.Tasks;
 import com.nixho.scheduled.R;
 
-public class UpdateTaskActivity extends ActivityExtension {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+import static com.nixho.scheduled.Fragments.TasksFragment.tasksRef;
+import static com.nixho.scheduled.MainActivity.User;
+
+public class UpdateTaskActivity extends AppCompatActivity {
+    Tasks updatedTask;
+    String TAG = "UPDATETASK";
+    String currentKey;
+
+    @BindView(R.id.taskrow_detailed_TaskName) EditText EditTaskName;
+    @BindView(R.id.taskrow_detailed_TaskDesc) EditText EditTaskDesc;
+    @BindView(R.id.taskrow_submitBtn) Button EditTaskBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.taskrow_detailed);
+        ButterKnife.bind(this);
+
+        // Retrieve the Task Object from the Intent
+        Tasks task = (Tasks) getIntent().getSerializableExtra("TaskObject");
 
         // Initialize the current layout's elements into objects first
-        EditText EditTaskName = (EditText) findViewById(R.id.taskrow_detailed_TaskName);
-        EditText EditTaskDesc = (EditText) findViewById(R.id.taskrow_detailed_TaskDesc);
+        //EditText EditTaskName = (EditText) findViewById(R.id.taskrow_detailed_TaskName);
+        //EditText EditTaskDesc = (EditText) findViewById(R.id.taskrow_detailed_TaskDesc);
 
         // Retrieve the whole intent that previously invoked this method.
         Bundle bundle = getIntent().getExtras(); // Retrieves all of the extra data from the previous intent.
+
+        // Set the key first.
+        currentKey = bundle.getString("Key");
 
         // set an exit transition
         getWindow().setExitTransition(new Explode());
 
         // Getting the data from the previous layout
         // http://stackoverflow.com/questions/5265913/how-to-use-putextra-and-getextra-for-string-data
-        if (bundle.getString("TaskName") != null) {
-            EditTaskName.setText(bundle.getString("TaskName"));
+        if (task.getTaskName() != null) {
+            EditTaskName.setText(task.getTaskName());
         }
 
-        if (bundle.getString("TaskDesc") != null) {
-            EditTaskDesc.setText(bundle.getString("TaskDesc"));
+        if (task.getTaskDescription() != null) {
+            EditTaskDesc.setText(task.getTaskDescription());
         }
+    }
+
+    @OnClick(R.id.taskrow_submitBtn)
+    public void submit() {
+        //String userId, String userName, String taskName, String taskDescription, String taskDeadline
+        updatedTask = new Tasks(User.getUid(), User.getDisplayName(), EditTaskName.getText().toString(), EditTaskDesc.getText().toString(), null);
+
+        // Let's make sure we're really updated the task
+        // by referencing to the key
+        tasksRef.child(currentKey).setValue(updatedTask);
     }
 }
