@@ -41,7 +41,7 @@ public class CalendarFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         // Setup the CalendarView
-        calendar = (CalendarView) view.findViewById(R.id.MainCalendar);
+        //calendar = (CalendarView) view.findViewById(R.id.MainCalendar);
 
         calendar.setLayoutParams(new CoordinatorLayout.LayoutParams(DrawerLayout.LayoutParams.MATCH_PARENT,
                                 CoordinatorLayout.LayoutParams.MATCH_PARENT));

@@ -22,6 +22,7 @@ import com.nixho.scheduled.Fragments.CalendarFragment;
 import com.nixho.scheduled.Fragments.TasksFragment;
 
 import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
 
 import static android.content.ContentValues.TAG;
@@ -65,7 +66,7 @@ public class InnerMainActivity extends ActivityExtension
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         // Setup the CalendarView
-        //calendar = (CalendarView) findViewById(R.id.MainCalendar);
+        calendar = (CalendarView) findViewById(R.id.MainCalendar);
 
         // https://www.youtube.com/watch?v=ZHLCfqN-60A
         calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {

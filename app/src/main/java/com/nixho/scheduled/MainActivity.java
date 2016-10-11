@@ -35,6 +35,10 @@ import java.io.Serializable;
 
 import static com.google.firebase.auth.GoogleAuthProvider.getCredential;
 
+/**
+ *  ButterKnife
+ *  https://github.com/JakeWharton/butterknife
+ */
 public class MainActivity extends ActivityExtension implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, View.OnClickListener, Serializable {
     /**
      * All the variables/objects instantiated here is implicitly made for this class only.
