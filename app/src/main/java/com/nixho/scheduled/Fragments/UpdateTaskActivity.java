@@ -3,7 +3,6 @@ package com.nixho.scheduled.Fragments;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Explode;
-import android.transition.Slide;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +32,8 @@ public class UpdateTaskActivity extends AppCompatActivity {
         setContentView(R.layout.taskrow_detailed);
         ButterKnife.bind(this);
 
+        Log.d(TAG, "Initializing UpdateTaskActivity");
+
         // Retrieve the Task Object from the Intent
         Tasks task = (Tasks) getIntent().getSerializableExtra("TaskObject");
 
@@ -53,17 +54,24 @@ public class UpdateTaskActivity extends AppCompatActivity {
         // http://stackoverflow.com/questions/5265913/how-to-use-putextra-and-getextra-for-string-data
         if (task.getTaskName() != null) {
             EditTaskName.setText(task.getTaskName());
+            Log.d(TAG, "Loaded EditTaskName");
         }
 
         if (task.getTaskDescription() != null) {
             EditTaskDesc.setText(task.getTaskDescription());
+            Log.d(TAG, "Loaded EditTaskDesc");
         }
+
+        Log.d(TAG, "Initialized UpdateTaskActivity");
+
     }
 
     @OnClick(R.id.taskrow_submitBtn)
     public void submit() {
         //String userId, String userName, String taskName, String taskDescription, String taskDeadline
         updatedTask = new Tasks(User.getUid(), User.getDisplayName(), EditTaskName.getText().toString(), EditTaskDesc.getText().toString(), null);
+
+        Log.d(TAG, "Updating Task: " + updatedTask.getUniqueId());
 
         // Let's make sure we're really updated the task
         // by referencing to the key
