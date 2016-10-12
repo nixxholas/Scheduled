@@ -26,6 +26,7 @@
 
     <!-- Create Tasks Strings -->
     <string name="create_task_title">Create Task</string>
+    <string name="create_task_uploadbutton">Select Image</string>
     <string name="create_task_task_name">Task Name</string>
     <string name="create_task_task_details">Task Description</string>
 

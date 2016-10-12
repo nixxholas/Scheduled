@@ -1,10 +1,13 @@
 package com.nixho.scheduled;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -20,26 +23,31 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.android.gms.gcm.Task;
-import com.google.android.gms.plus.Plus;
+import com.google.android.gms.ads.formats.NativeAd;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.nixho.scheduled.Fragments.CalendarFragment;
 import com.nixho.scheduled.Fragments.TasksFragment;
 import com.nixho.scheduled.Objects.CustomTimeDialog;
 import com.nixho.scheduled.Objects.Tasks;
+import com.squareup.picasso.Picasso;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import butterknife.BindView;
-import butterknife.BindViews;
 import butterknife.ButterKnife;
 
 import static android.content.ContentValues.TAG;
@@ -51,6 +59,8 @@ import static com.nixho.scheduled.MainActivity.rootRef;
 
 public class InnerMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+    private static final int IMAGE_SELECT = 2;
+
     /**
      * Before you attempt to public static any view from your layouts,
      * read this first.
@@ -61,6 +71,8 @@ public class InnerMainActivity extends AppCompatActivity
      * memory leaks.
      */
     ImageView profilePicture; // Placeholder to store the user's profile picture
+    private ProgressDialog mProgressDialog;
+    private static ImageView uploadedView;
 
     /**
      * FragmentManager
@@ -79,6 +91,7 @@ public class InnerMainActivity extends AppCompatActivity
      * DatabaseReference is the updated Object for Firebase 3.0
      */
     static final DatabaseReference tasksRef = rootRef.child(User.getUid()).child("Tasks"); // Setup the Database Reference
+    private StorageReference mStorage = FirebaseStorage.getInstance().getReference();
 
     /**
      * The use of ButterKnife
@@ -302,10 +315,24 @@ public class InnerMainActivity extends AppCompatActivity
         final View newView = LayoutInflater.from(v.getContext()).inflate(R.layout.content_inner_tasks_createalert, null); // Well, indians told me to null..
 
         // Initialize the elements after the view has been initialized
+        final Button uploadButton = (Button) newView.findViewById(R.id.createalert_UploadButton);
         final EditText taskName = (EditText) newView.findViewById(R.id.createalert_TaskName);
         final EditText taskDesc = (EditText) newView.findViewById(R.id.createalert_TaskDesc);
         final EditText taskDate = (EditText) newView.findViewById(R.id.createalert_TaskDate);
-        //Button createTaskBtn = (Button) newView.findViewById(R.id.createTask_btnCreate);
+        uploadedView = (ImageView) newView.findViewById(R.id.createalert_ImageView);
+
+        mProgressDialog = new ProgressDialog(this);
+
+        uploadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent uploadIntent = new Intent(Intent.ACTION_PICK);
+
+                uploadIntent.setType("image/*");
+
+                startActivityForResult(uploadIntent, IMAGE_SELECT);
+            }
+        });
 
         // DatePicker Dialog
         // https://www.youtube.com/watch?v=a_Ap6T4RlYU
@@ -395,6 +422,56 @@ public class InnerMainActivity extends AppCompatActivity
         EditText dateBox = (EditText) view.findViewById(R.id.createalert_TaskDate);
 
         dateBox.setText(dayFinal + "/" + monthFinal + "/" + yearFinal + "\t" + hourFinal + ":" + minuteFinal);
+    }
+
+
+    /**
+     * This is why we use int ID TAGs so that we'll be able to identify any,
+     * method we've called to run custom code if so.
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == IMAGE_SELECT && resultCode == RESULT_OK) {
+            mProgressDialog.setTitle("Uploading..");
+            mProgressDialog.setMessage("Please hold on!");
+            mProgressDialog.show();
+
+            Uri uri = data.getData();
+
+            Picasso.with(InnerMainActivity.this).load(uri).fit().into(uploadedView);
+
+            /**
+             * The chunk of code below immediately uploads the image to firebase, which is not what
+             * we want to do in real app situations. We'll perform a single upload with all of the
+             * task's data first.
+             */
+            /*
+            StorageReference fileRef = mStorage.child(User.getUid()).child("TaskImages").child(uri.getLastPathSegment());
+
+            fileRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(InnerMainActivity.this, "Uploading Done", Toast.LENGTH_LONG).show();
+
+                    Uri uploadUri = taskSnapshot.getDownloadUrl();
+
+                    Picasso.with(InnerMainActivity.this).load(uploadUri).centerCrop().into(uploadedView);
+
+                    //mProgressDialog.dismiss();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });*/
+        }
     }
 
     /**
