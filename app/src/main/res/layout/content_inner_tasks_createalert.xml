@@ -48,6 +48,7 @@
     <EditText
         android:focusable="false"
         android:id="@+id/createalert_TaskDate"
+        android:inputType="datetime"
         android:layout_marginLeft="@dimen/dialogactivity_side_margins"
         android:layout_marginRight="@dimen/dialogactivity_side_margins"
         android:layout_width="match_parent"

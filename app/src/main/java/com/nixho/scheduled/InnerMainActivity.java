@@ -1,5 +1,8 @@
 package com.nixho.scheduled;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -8,33 +11,46 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CalendarView;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.gcm.Task;
 import com.google.android.gms.plus.Plus;
+import com.google.firebase.database.DatabaseReference;
 import com.nixho.scheduled.Fragments.CalendarFragment;
 import com.nixho.scheduled.Fragments.TasksFragment;
+import com.nixho.scheduled.Objects.CustomTimeDialog;
+import com.nixho.scheduled.Objects.Tasks;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
 
 import static android.content.ContentValues.TAG;
-import static com.nixho.scheduled.Fragments.TasksFragment.createTaskView;
 import static com.nixho.scheduled.MainActivity.User;
 import static com.nixho.scheduled.MainActivity.mAuth;
 import static com.nixho.scheduled.MainActivity.mGoogleApiClient;
 import static com.nixho.scheduled.MainActivity.progress;
+import static com.nixho.scheduled.MainActivity.rootRef;
 
 public class InnerMainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     /**
      * Before you attempt to public static any view from your layouts,
      * read this first.
@@ -45,6 +61,24 @@ public class InnerMainActivity extends AppCompatActivity
      * memory leaks.
      */
     ImageView profilePicture; // Placeholder to store the user's profile picture
+
+    /**
+     * FragmentManager
+     *
+     * The FragmentManager obejct helps us to manage all of the Fragments that we have
+     * instantiated, helps us replace the current fragment over another without having to
+     * run lots of lines of code for that.
+     */
+    public FragmentManager manager = getSupportFragmentManager(); // Initialize the FragmentManager
+
+    /**
+     * We are using the URL here instead of the Firebase Object
+     * <p>
+     * Firebase ref = new Firebase("https://scheduled-7f23b.firebaseio.com/Zaki");
+     * <p>
+     * DatabaseReference is the updated Object for Firebase 3.0
+     */
+    static final DatabaseReference tasksRef = rootRef.child(User.getUid()).child("Tasks"); // Setup the Database Reference
 
     /**
      * The use of ButterKnife
@@ -58,6 +92,12 @@ public class InnerMainActivity extends AppCompatActivity
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
+
+    // Initialize the Calendar object and its integers first so that we can use it
+    // for task deadlines
+    static int day, month, year, hour, minute;
+    static int dayFinal, monthFinal, yearFinal, hourFinal, minuteFinal;
+    private static String date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,15 +222,6 @@ public class InnerMainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        /**
-         * FragmentManager
-         *
-         * The FragmentManager obejct helps us to manage all of the Fragments that we have
-         * instantiated, helps us replace the current fragment over another without having to
-         * run lots of lines of code for that.
-         */
-        FragmentManager manager = getSupportFragmentManager(); // Initialize the FragmentManager
-
         switch (id) {
             case R.id.nav_calendar:
                 CalendarFragment calendarFragment = new CalendarFragment(); // Create an object from the fragment
@@ -264,6 +295,106 @@ public class InnerMainActivity extends AppCompatActivity
             User = null;
             //setAuthenticatedUser(null);
         }
+    }
+
+    public void createTaskView(View v) {
+        // Inflate -> View
+        final View newView = LayoutInflater.from(v.getContext()).inflate(R.layout.content_inner_tasks_createalert, null); // Well, indians told me to null..
+
+        // Initialize the elements after the view has been initialized
+        final EditText taskName = (EditText) newView.findViewById(R.id.createalert_TaskName);
+        final EditText taskDesc = (EditText) newView.findViewById(R.id.createalert_TaskDesc);
+        final EditText taskDate = (EditText) newView.findViewById(R.id.createalert_TaskDate);
+        //Button createTaskBtn = (Button) newView.findViewById(R.id.createTask_btnCreate);
+
+        // DatePicker Dialog
+        // https://www.youtube.com/watch?v=a_Ap6T4RlYU
+        taskDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar calendar = Calendar.getInstance();
+                year = calendar.get(Calendar.YEAR);
+                month = calendar.get(Calendar.MONTH);
+                day = calendar.get(Calendar.DAY_OF_MONTH);
+
+                // Create a new Deadline Picker, and throw in the current view for the
+                // dialog to properly edit the time on the EditText.
+                CustomTimeDialog ct = new CustomTimeDialog(v);
+
+                ct.show(getFragmentManager(), "TaskDeadline");
+
+                /*DatePickerDialog datePickerDialog = new DatePickerDialog(InnerMainActivity.this,
+                        InnerMainActivity.this,
+                        year, month, day);
+                datePickerDialog.show();*/
+            }
+        });
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+
+        builder//.setMessage("Create a new task") Well, this overlaps with the resources from newView
+                .setCancelable(false)
+                .setView(newView);
+
+        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                //String uid = User.getUid();
+                String Username = User.getDisplayName();
+                // String name = "User " + uid.substring(0, 6);
+                String taskname = taskName.getText().toString();
+                String taskdesc = taskDesc.getText().toString();
+                String taskCal = taskDate.getText().toString();
+
+                Tasks task = new Tasks(Username, taskname, taskdesc, taskCal);
+
+                String key = tasksRef.push().getKey();
+
+                task.setUniqueId(key);
+
+                // Users
+                // -> User's Unique ID
+                // --> Tasks
+                // ---> Task1..
+                tasksRef.push().setValue(task);
+            }
+        });
+
+        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+
+        alert.show();
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        Calendar calendar = Calendar.getInstance();
+        yearFinal = year;
+        monthFinal = month;
+        dayFinal = dayOfMonth;
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(InnerMainActivity.this,
+                InnerMainActivity.this,
+                hour,
+                minute,
+                DateFormat.is24HourFormat(this));
+        timePickerDialog.show();
+    }
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        hourFinal = hourOfDay;
+        minuteFinal = minute;
+
+        EditText dateBox = (EditText) view.findViewById(R.id.createalert_TaskDate);
+
+        dateBox.setText(dayFinal + "/" + monthFinal + "/" + yearFinal + "\t" + hourFinal + ":" + minuteFinal);
     }
 
     /**

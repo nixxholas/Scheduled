@@ -1,5 +1,9 @@
 package com.nixho.scheduled.Fragments;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -8,40 +12,48 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
+import com.nixho.scheduled.InnerMainActivity;
 import com.nixho.scheduled.Objects.Tasks;
 import com.nixho.scheduled.R;
+
+import java.util.Calendar;
 
 import static com.nixho.scheduled.MainActivity.User;
 import static com.nixho.scheduled.MainActivity.rootRef;
 
 /**
  * Created by nixho on 28-Sep-16.
- *
+ * <p>
  * Remember that a fragment always needs to be part of an activity.
- *
+ * <p>
  * In the event when R does not regenerate:
  * http://stackoverflow.com/questions/2757107/developing-for-android-in-eclipse-r-java-not-regenerating
- *
+ * <p>
  * Communicating a Fragment with an Activity via Interfaces (Didn't use this)
  * https://www.youtube.com/watch?v=MHHXxWbSaho
- *
+ * <p>
  * Communicating with Fragments
  * https://www.youtube.com/watch?v=dHEQ-xeFxUM
- *
+ * <p>
  * Reading up on Firebase Realtime Database & Offline Database
  * https://www.youtube.com/watch?v=cYinms8LurA
  */
@@ -51,9 +63,9 @@ public class TasksFragment extends Fragment {
 
     /**
      * We are using the URL here instead of the Firebase Object
-     *
+     * <p>
      * Firebase ref = new Firebase("https://scheduled-7f23b.firebaseio.com/Zaki");
-     *
+     * <p>
      * DatabaseReference is the updated Object for Firebase 3.0
      */
     static final DatabaseReference tasksRef = rootRef.child(User.getUid()).child("Tasks"); // Setup the Database Reference
@@ -61,6 +73,7 @@ public class TasksFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -87,14 +100,14 @@ public class TasksFragment extends Fragment {
         final FirebaseRecyclerAdapter<Tasks, TaskViewHolder> adapter =
                 new FirebaseRecyclerAdapter<Tasks, TaskViewHolder>(
                         Tasks.class, // We need to inform the Adapter what kind of datatype we're taking in.
-                                     // in this case, we're taking in a Tasks object.
+                        // in this case, we're taking in a Tasks object.
                         R.layout.taskrow, // Inform the adapter to utilize the taskrow layout for any
-                                          // form of view that we're going to inject into
+                        // form of view that we're going to inject into
                         TaskViewHolder.class, // We need to invoke a view injector, which is this class
-                                              // that will help us to inject the Tasks object into the taskrow layout.
+                        // that will help us to inject the Tasks object into the taskrow layout.
                         tasksRef // Basically the DatabaseReference we're taking the object from.
                 ) {
-                    
+
                     /**
                      * Populating the RecyclerView..
                      *
@@ -195,7 +208,7 @@ public class TasksFragment extends Fragment {
 
     /**
      * Allows us to Initialize a TextView Dynamically
-     *
+     * <p>
      * Only use this when you wanna learn RecyclerView
      */
     public static class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -211,7 +224,7 @@ public class TasksFragment extends Fragment {
         }
 
         public void setTaskName(String taskName) {
-           TextView taskNameView = (TextView) mView.findViewById(R.id.taskrow_TaskName);
+            TextView taskNameView = (TextView) mView.findViewById(R.id.taskrow_TaskName);
             taskNameView.setText(taskName);
         }
 
@@ -239,56 +252,6 @@ public class TasksFragment extends Fragment {
             }
 
         }
-    }
-
-    public static void createTaskView(View v) {
-        // Inflate -> View
-        final View newView = LayoutInflater.from(v.getContext()).inflate(R.layout.content_inner_tasks_createalert, null); // Well, indians told me to null..
-
-        // Initialize the elements after the view has been initialized
-        final EditText taskName = (EditText) newView.findViewById(R.id.createalert_TaskName);
-        final EditText taskDesc = (EditText) newView.findViewById(R.id.createalert_TaskDesc);
-        final EditText taskDate = (EditText) newView.findViewById(R.id.createalert_TaskDate);
-        //Button createTaskBtn = (Button) newView.findViewById(R.id.createTask_btnCreate);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-
-        builder//.setMessage("Create a new task") Well, this overlaps with the resources from newView
-                .setCancelable(false)
-                .setView(newView);
-
-        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                //String uid = User.getUid();
-                String Username = User.getDisplayName();
-                // String name = "User " + uid.substring(0, 6);
-                String taskname = taskName.getText().toString();
-                String taskdesc = taskDesc.getText().toString();
-                String taskCal = taskDate.getText().toString();
-
-                Tasks task = new Tasks(Username, taskname, taskdesc, taskCal);
-
-                String key = tasksRef.push().getKey();
-
-                task.setUniqueId(key);
-
-                // Users
-                // -> User's Unique ID
-                // --> Tasks
-                // ---> Task1..
-                tasksRef.push().setValue(task);
-            }
-        });
-
-        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-        AlertDialog alert = builder.create();
-
-        alert.show();
     }
 
 }

@@ -13,6 +13,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/tasks_recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:transitionName="@string/transition_taskcard"/>
 
 </android.support.design.widget.CoordinatorLayout>

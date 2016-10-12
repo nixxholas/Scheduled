@@ -48,7 +48,7 @@ public class UpdateTaskActivity extends AppCompatActivity {
         currentKey = bundle.getString("Key");
 
         // set an exit transition
-        getWindow().setExitTransition(new Explode());
+        getWindow().setReenterTransition(new Explode());
 
         // Getting the data from the previous layout
         // http://stackoverflow.com/questions/5265913/how-to-use-putextra-and-getextra-for-string-data
@@ -75,6 +75,7 @@ public class UpdateTaskActivity extends AppCompatActivity {
 
         // Let's make sure we're really updated the task
         // by referencing to the key
+        // https://www.youtube.com/watch?v=ci7NBiBVk5I
         tasksRef.child(currentKey).setValue(updatedTask);
     }
 }
