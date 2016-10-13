@@ -1,15 +1,19 @@
 package com.nixho.scheduled.Fragments;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Explode;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
+import com.google.android.gms.nearby.messages.internal.Update;
 import com.nixho.scheduled.Objects.Tasks;
 import com.nixho.scheduled.R;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -20,11 +24,14 @@ import static com.nixho.scheduled.MainActivity.User;
 
 public class UpdateTaskActivity extends AppCompatActivity {
     Tasks updatedTask;
+    String taskImageUrl;
+    String taskDeadline;
     String TAG = "UPDATETASK";
     String currentKey;
 
     @BindView(R.id.taskrow_detailed_TaskName) EditText EditTaskName;
     @BindView(R.id.taskrow_detailed_TaskDesc) EditText EditTaskDesc;
+    @BindView(R.id.taskrow_detailed_TaskImage) ImageView EditTaskImage;
     @BindView(R.id.taskrow_submitBtn) Button EditTaskBtn;
 
     @Override
@@ -37,6 +44,11 @@ public class UpdateTaskActivity extends AppCompatActivity {
 
         // Retrieve the Task Object from the Intent
         Tasks task = (Tasks) getIntent().getSerializableExtra("TaskObject");
+
+        // Set the URL of the image for updating
+        taskImageUrl = task.getImageUrl();
+
+        taskDeadline = task.getTaskDeadline();
 
         // Initialize the current layout's elements into objects first
         //EditText EditTaskName = (EditText) findViewById(R.id.taskrow_detailed_TaskName);
@@ -63,14 +75,23 @@ public class UpdateTaskActivity extends AppCompatActivity {
             Log.d(TAG, "Loaded EditTaskDesc");
         }
 
-        Log.d(TAG, "Initialized UpdateTaskActivity");
+        if (task.getImageUrl() != null) {
+            Uri uploadedViewUri = Uri.parse(task.getImageUrl());
 
+            Picasso.with(UpdateTaskActivity.this)
+                    .load(uploadedViewUri)
+                    .resize(EditTaskImage.getMeasuredWidth(), EditTaskImage.getMaxHeight())
+                    .centerInside()
+                    .into(EditTaskImage);
+        }
+
+        Log.d(TAG, "Initialized UpdateTaskActivity");
     }
 
     @OnClick(R.id.taskrow_submitBtn)
     public void submit() {
-        //String userId, String userName, String taskName, String taskDescription, String taskDeadline
-        updatedTask = new Tasks(User.getUid(), User.getDisplayName(), EditTaskName.getText().toString(), EditTaskDesc.getText().toString(), null);
+        //String UID, String userName, String taskName, String taskDescription, String taskDeadline, String imageUrl
+        updatedTask = new Tasks(User.getUid(), User.getDisplayName(), EditTaskName.getText().toString(), EditTaskDesc.getText().toString(), taskDeadline, taskImageUrl);
 
         Log.d(TAG, "Updating Task: " + updatedTask.getUniqueId());
 

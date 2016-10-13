@@ -13,6 +13,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <ImageView
+            android:id="@+id/taskrow_detailed_TaskImage"
+            android:layout_width="match_parent"
+            android:layout_height="250dp" />
+
         <EditText
             android:id="@+id/taskrow_detailed_TaskName"
             android:hint="@string/task_name_hint"

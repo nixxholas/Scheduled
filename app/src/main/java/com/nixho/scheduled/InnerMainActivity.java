@@ -1,5 +1,6 @@
 package com.nixho.scheduled;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
@@ -10,6 +11,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -64,19 +67,20 @@ public class InnerMainActivity extends AppCompatActivity
     /**
      * Before you attempt to public static any view from your layouts,
      * read this first.
-     *
+     * <p>
      * http://stackoverflow.com/questions/11908039/android-static-fields-and-memory-leaks
-     *
+     * <p>
      * Doing public static CalendarView calendar for example is bad, and will result in
      * memory leaks.
      */
     ImageView profilePicture; // Placeholder to store the user's profile picture
     private ProgressDialog mProgressDialog;
-    private static ImageView uploadedView;
+    private ImageView uploadedView;
+    private Uri uploadedViewUri;
 
     /**
      * FragmentManager
-     *
+     * <p>
      * The FragmentManager obejct helps us to manage all of the Fragments that we have
      * instantiated, helps us replace the current fragment over another without having to
      * run lots of lines of code for that.
@@ -95,22 +99,28 @@ public class InnerMainActivity extends AppCompatActivity
 
     /**
      * The use of ButterKnife
-     *
+     * <p>
      * ButterKnife allows us to tidy up code for "linking" our xml objects
      * with our code. So as you scroll through my code, you'll notice that
      * the onCreate method wouldn't be so long due to ButterKnife.
      */
-    @BindView(R.id.InnerActivityFAButton) FloatingActionButton FloatingButton;
-    @BindView(R.id.MainCalendar) CalendarView calendar;
-    @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.drawer_layout) DrawerLayout drawer;
-    @BindView(R.id.nav_view) NavigationView navigationView;
+    @BindView(R.id.InnerActivityFAButton)
+    FloatingActionButton FloatingButton;
+    @BindView(R.id.MainCalendar)
+    CalendarView calendar;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawer;
+    @BindView(R.id.nav_view)
+    NavigationView navigationView;
 
     // Initialize the Calendar object and its integers first so that we can use it
     // for task deadlines
     static int day, month, year, hour, minute;
     static int dayFinal, monthFinal, yearFinal, hourFinal, minuteFinal;
     private static String date;
+    private static String taskImageUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +168,14 @@ public class InnerMainActivity extends AppCompatActivity
                             FloatingButton.show();
                         }
 
-                        createTaskView(view); // Invokes the createTaskView method via the TasksFragment class
+                        ActivityOptionsCompat options =
+                                ActivityOptionsCompat.makeSceneTransitionAnimation(getParent(),
+                                        view,   // The view which starts the transition
+                                        getString(R.string.transition_taskcard)    // The transitionName of the view we’re transitioning to
+                                );
+
+
+                        //createTaskView(view); // Invokes the createTaskView method via the TasksFragment class
                         break;
                     default:
                         break;
@@ -310,6 +327,10 @@ public class InnerMainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Floating Action Button Method for the TasksFragment.
+     * @param v
+     */
     public void createTaskView(View v) {
         // Inflate -> View
         final View newView = LayoutInflater.from(v.getContext()).inflate(R.layout.content_inner_tasks_createalert, null); // Well, indians told me to null..
@@ -365,24 +386,60 @@ public class InnerMainActivity extends AppCompatActivity
 
         builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
+                mProgressDialog.setTitle("Creating Task..");
+                mProgressDialog.setMessage("Please hold on!");
+                mProgressDialog.show();
+
                 //String uid = User.getUid();
-                String Username = User.getDisplayName();
+                final String Username = User.getDisplayName();
                 // String name = "User " + uid.substring(0, 6);
-                String taskname = taskName.getText().toString();
-                String taskdesc = taskDesc.getText().toString();
-                String taskCal = taskDate.getText().toString();
+                final String taskname = taskName.getText().toString();
+                final String taskdesc = taskDesc.getText().toString();
+                final String taskCal = taskDate.getText().toString();
 
-                Tasks task = new Tasks(Username, taskname, taskdesc, taskCal);
+                mProgressDialog.setMessage("Uploading your image");
 
-                String key = tasksRef.push().getKey();
+                // Let's upload the image first before we push the whole object into the node
+                StorageReference fileRef = mStorage.child(User.getUid())
+                        .child("TaskImages")
+                        .child(uploadedViewUri.getLastPathSegment());
 
-                task.setUniqueId(key);
+                fileRef.putFile(uploadedViewUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        mProgressDialog.setMessage("Preparing to send the task info");
+                        //Toast.makeText(InnerMainActivity.this, "Uploading Done", Toast.LENGTH_LONG).show();
 
-                // Users
-                // -> User's Unique ID
-                // --> Tasks
-                // ---> Task1..
-                tasksRef.push().setValue(task);
+                        Uri uploadUri = taskSnapshot.getDownloadUrl();
+
+                        taskImageUrl = uploadUri.toString();
+
+                        //Picasso.with(InnerMainActivity.this).load(uploadUri).centerCrop().into(uploadedView);
+
+                        //mProgressDialog.dismiss();
+
+                        if (!taskImageUrl.equals("")) {
+                            mProgressDialog.setMessage("Finalizing..");
+                            String key = tasksRef.push().getKey();
+
+                            Tasks task = new Tasks(key, Username, taskname, taskdesc, taskCal, taskImageUrl);
+
+                            //task.setUniqueId(key);
+
+                            // Users
+                            // -> User's Unique ID
+                            // --> Tasks
+                            // ---> Task1..
+                            tasksRef.push().setValue(task);
+                            mProgressDialog.dismiss();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
             }
         });
 
@@ -438,14 +495,10 @@ public class InnerMainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == IMAGE_SELECT && resultCode == RESULT_OK) {
-            mProgressDialog.setTitle("Uploading..");
-            mProgressDialog.setMessage("Please hold on!");
-            mProgressDialog.show();
-
-            Uri uri = data.getData();
+            uploadedViewUri = data.getData();
 
             Picasso.with(InnerMainActivity.this)
-                    .load(uri)
+                    .load(uploadedViewUri)
                     .resize(uploadedView.getMeasuredWidth(), uploadedView.getMeasuredHeight())
                     .centerInside()
                     .into(uploadedView);

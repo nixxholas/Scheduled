@@ -6,6 +6,9 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -31,10 +34,15 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.StorageReference;
 import com.nixho.scheduled.InnerMainActivity;
 import com.nixho.scheduled.Objects.Tasks;
 import com.nixho.scheduled.R;
+import com.squareup.picasso.Picasso;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Calendar;
 
 import static com.nixho.scheduled.MainActivity.User;
@@ -129,11 +137,13 @@ public class TasksFragment extends Fragment {
                         //final String currentKey = getRef(position).toString(); // This returns the object URL from Firebase
                         final String currentKey = getRef(position).getKey();
                         Log.d(TAG, currentKey.toString());
+                        Log.d(TAG, "Image: " + task.getImageUrl());
 
                         // Basically we need to attach the task to the viewHolder so that
                         // the cards can instantiate their view properly
                         viewHolder.setTaskName(task.getTaskName());
                         viewHolder.setTaskDesc(task.getTaskDescription());
+                        viewHolder.setTaskImage(task.getImageUrl());
 
                         final Intent updateView = new Intent(getActivity(), UpdateTaskActivity.class);
 
@@ -231,6 +241,29 @@ public class TasksFragment extends Fragment {
         public void setTaskDesc(String taskDesc) {
             TextView taskDescView = (TextView) mView.findViewById(R.id.taskrow_TaskDesc);
             taskDescView.setText(taskDesc);
+        }
+
+        public void setTaskImage(String imageURI) {
+            String TAG = "TASKSFRAGMENT/setTaskImage: ";
+            ImageView taskImageView = (ImageView) mView.findViewById(R.id.taskrow_TaskImage);
+
+            try {
+                //URI url = URI.create(imageURI);
+                //Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+
+                Picasso.with(mView.getContext())
+                        .load(imageURI)
+                        .resize(taskImageView.getMeasuredWidth(), taskImageView.getMaxHeight())
+                        .centerInside()
+                        .into(taskImageView);
+
+
+                // http://stackoverflow.com/questions/17356312/converting-of-uri-to-string
+                // taskImageView.setImageURI(Uri.parse(imageURI));
+                // taskImageView.setImageBitmap(bmp);
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
         }
 
         @Override

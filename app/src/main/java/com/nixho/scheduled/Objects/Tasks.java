@@ -31,12 +31,21 @@ public class Tasks implements Serializable{
         TaskDeadline = taskDeadline;
     }
 
-    public Tasks(String UID, String userName, String taskName, String taskDescription, String taskDeadline) {
+    public Tasks(String userName, String taskName, String taskDescription, String taskDeadline, String imageUrl) {
+        UserName = userName;
+        TaskName = taskName;
+        TaskDescription = taskDescription;
+        TaskDeadline = taskDeadline;
+        ImageUrl = imageUrl;
+    }
+
+    public Tasks(String UID, String userName, String taskName, String taskDescription, String taskDeadline, String imageUrl) {
         UniqueId = UID;
         UserName = userName;
         TaskName = taskName;
         TaskDescription = taskDescription;
         TaskDeadline = taskDeadline;
+        ImageUrl = imageUrl;
     }
 
     public String getUniqueId() {
