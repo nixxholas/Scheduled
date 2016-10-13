@@ -444,7 +444,11 @@ public class InnerMainActivity extends AppCompatActivity
 
             Uri uri = data.getData();
 
-            Picasso.with(InnerMainActivity.this).load(uri).fit().into(uploadedView);
+            Picasso.with(InnerMainActivity.this)
+                    .load(uri)
+                    .resize(uploadedView.getMeasuredWidth(), uploadedView.getMeasuredHeight())
+                    .centerInside()
+                    .into(uploadedView);
 
             /**
              * The chunk of code below immediately uploads the image to firebase, which is not what
