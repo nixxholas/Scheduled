@@ -3,6 +3,8 @@ package com.nixho.scheduled.Fragments;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Explode;
 import android.util.Log;
@@ -16,6 +18,7 @@ import com.nixho.scheduled.R;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,14 +28,17 @@ import static com.nixho.scheduled.Fragments.TasksFragment.tasksRef;
 import static com.nixho.scheduled.MainActivity.User;
 
 public class UpdateTaskActivity extends AppCompatActivity {
+    Uri uploadedViewUri;
     Tasks updatedTask;
     String taskImageUrl;
     String taskDeadline;
     String TAG = "UPDATETASK";
     String currentKey;
+    DateTime taskDate;
 
     @BindView(R.id.taskrow_detailed_TaskName) EditText EditTaskName;
     @BindView(R.id.taskrow_detailed_TaskDesc) EditText EditTaskDesc;
+    @BindView(R.id.taskrow_detailed_TaskDate) EditText EditTaskDate;
     @BindView(R.id.taskrow_detailed_TaskImage) ImageView EditTaskImage;
     @BindView(R.id.taskrow_submitBtn) Button EditTaskBtn;
 
@@ -75,16 +81,34 @@ public class UpdateTaskActivity extends AppCompatActivity {
         if (task.getTaskDescription() != null) {
             EditTaskDesc.setText(task.getTaskDescription());
             Log.d(TAG, "Loaded EditTaskDesc");
-        }
+    }
 
         if (task.getImageUrl() != null) {
-            Uri uploadedViewUri = Uri.parse(task.getImageUrl());
+            uploadedViewUri = Uri.parse(task.getImageUrl());
+            Log.d(TAG, "Loading EditTaskImage");
 
-            Picasso.with(UpdateTaskActivity.this)
-                    .load(uploadedViewUri)
-                    .resize(EditTaskImage.getMeasuredWidth(), EditTaskImage.getMaxHeight())
-                    .centerInside()
-                    .into(EditTaskImage);
+            // Quick way to create a thread for Picasso is via Handler instead of Thread
+            // https://github.com/square/picasso/issues/547
+            Handler uiHandler = new Handler(Looper.getMainLooper());
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Picasso.with(UpdateTaskActivity.this)
+                            .load(uploadedViewUri)
+                            .resize(EditTaskImage.getMeasuredWidth(), EditTaskImage.getMaxHeight())
+                            .centerInside()
+                            .into(EditTaskImage);
+                }
+            });
+
+            Log.d(TAG, "Loaded EditTaskImage");
+        }
+
+        if (task.getTaskDeadline() != null) {
+            taskDate = new DateTime(task.getTaskDeadline(), DateTimeZone.UTC);
+
+            EditTaskDate.setText(taskDate.toLocalDateTime().toString());
+            Log.d(TAG, "Loaded EditTaskDeadline");
         }
 
         Log.d(TAG, "Initialized UpdateTaskActivity");

@@ -139,10 +139,13 @@ public class TasksFragment extends Fragment {
                         Log.d(TAG, currentKey.toString());
                         Log.d(TAG, "Image: " + task.getImageUrl());
 
+                        // Perform some DateTime formatting from the ISO8601 format
+
                         // Basically we need to attach the task to the viewHolder so that
                         // the cards can instantiate their view properly
                         viewHolder.setTaskName(task.getTaskName());
                         viewHolder.setTaskDesc(task.getTaskDescription());
+                        viewHolder.setTaskDate(task.getTaskDeadline());
                         viewHolder.setTaskImage(task.getImageUrl());
 
                         final Intent updateView = new Intent(getActivity(), UpdateTaskActivity.class);
@@ -241,6 +244,11 @@ public class TasksFragment extends Fragment {
         public void setTaskDesc(String taskDesc) {
             TextView taskDescView = (TextView) mView.findViewById(R.id.taskrow_TaskDesc);
             taskDescView.setText(taskDesc);
+        }
+
+        public void setTaskDate(String taskDate) {
+            TextView taskDateView = (TextView) mView.findViewById(R.id.taskrow_TaskDate);
+            taskDateView.setText(taskDate);
         }
 
         public void setTaskImage(String imageURI) {

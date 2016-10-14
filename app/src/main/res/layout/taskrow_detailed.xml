@@ -30,6 +30,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <EditText
+            android:id="@+id/taskrow_detailed_TaskDate"
+            android:hint="Task Date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <Button
             android:id="@+id/taskrow_submitBtn"
             android:backgroundTint="@color/colorPrimary"

@@ -431,7 +431,11 @@ public class InnerMainActivity extends AppCompatActivity
 
                         Uri uploadUri = taskSnapshot.getDownloadUrl();
 
-                        taskImageUrl = uploadUri.toString();
+                        try {
+                            taskImageUrl = uploadUri != null ? uploadUri.toString() : null;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
                         //Picasso.with(InnerMainActivity.this).load(uploadUri).centerCrop().into(uploadedView);
 
@@ -510,6 +514,7 @@ public class InnerMainActivity extends AppCompatActivity
      * method we've called to run custom code if so.
      *
      * @param requestCode
+     *
      * @param resultCode
      * @param data
      */
