@@ -32,6 +32,46 @@ public class CustomTimeDialog extends DialogFragment implements DatePickerDialog
         DateInput = (EditText) v;
     }
 
+    public static int getDayFinal() {
+        return dayFinal;
+    }
+
+    public static void setDayFinal(int dayFinal) {
+        CustomTimeDialog.dayFinal = dayFinal;
+    }
+
+    public static int getMonthFinal() {
+        return monthFinal;
+    }
+
+    public static void setMonthFinal(int monthFinal) {
+        CustomTimeDialog.monthFinal = monthFinal;
+    }
+
+    public static int getYearFinal() {
+        return yearFinal;
+    }
+
+    public static void setYearFinal(int yearFinal) {
+        CustomTimeDialog.yearFinal = yearFinal;
+    }
+
+    public static int getHourFinal() {
+        return hourFinal;
+    }
+
+    public static void setHourFinal(int hourFinal) {
+        CustomTimeDialog.hourFinal = hourFinal;
+    }
+
+    public static int getMinuteFinal() {
+        return minuteFinal;
+    }
+
+    public static void setMinuteFinal(int minuteFinal) {
+        CustomTimeDialog.minuteFinal = minuteFinal;
+    }
+
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -49,6 +89,7 @@ public class CustomTimeDialog extends DialogFragment implements DatePickerDialog
         yearFinal = year;
         monthFinal = month;
         dayFinal = dayOfMonth;
+
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 

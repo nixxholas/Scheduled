@@ -48,6 +48,9 @@ import com.nixho.scheduled.Objects.CustomTimeDialog;
 import com.nixho.scheduled.Objects.Tasks;
 import com.squareup.picasso.Picasso;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import java.util.Calendar;
 
 import butterknife.BindView;
@@ -61,7 +64,7 @@ import static com.nixho.scheduled.MainActivity.progress;
 import static com.nixho.scheduled.MainActivity.rootRef;
 
 public class InnerMainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
     private static final int IMAGE_SELECT = 2;
 
     /**
@@ -117,9 +120,9 @@ public class InnerMainActivity extends AppCompatActivity
 
     // Initialize the Calendar object and its integers first so that we can use it
     // for task deadlines
-    static int day, month, year, hour, minute;
-    static int dayFinal, monthFinal, yearFinal, hourFinal, minuteFinal;
-    private static String date;
+    static int day, month, year;//, hour, minute;
+    //static int dayFinal, monthFinal, yearFinal, hourFinal, minuteFinal;
+    //private static String date;
     private static String taskImageUrl;
 
     @Override
@@ -168,14 +171,13 @@ public class InnerMainActivity extends AppCompatActivity
                             FloatingButton.show();
                         }
 
-                        ActivityOptionsCompat options =
+                       /* ActivityOptionsCompat options =
                                 ActivityOptionsCompat.makeSceneTransitionAnimation(getParent(),
                                         view,   // The view which starts the transition
                                         getString(R.string.transition_taskcard)    // The transitionName of the view we’re transitioning to
-                                );
+                                );*/
 
-
-                        //createTaskView(view); // Invokes the createTaskView method via the TasksFragment class
+                        createTaskView(view); // Invokes the createTaskView method via the TasksFragment class
                         break;
                     default:
                         break;
@@ -371,6 +373,13 @@ public class InnerMainActivity extends AppCompatActivity
 
                 ct.show(getFragmentManager(), "TaskDeadline");
 
+                /**
+                 * Initially, we can directly cast the DatePickerDialog Object. However,
+                 * since we need to show the user a TimePickerDialog immediately after selecting
+                 * the Date, it's better to create a Custom Dialog Object.
+                 *
+                 * In such cases, we'll be able to customize the Date and Time Picker Easily.
+                 */
                 /*DatePickerDialog datePickerDialog = new DatePickerDialog(InnerMainActivity.this,
                         InnerMainActivity.this,
                         year, month, day);
@@ -390,12 +399,22 @@ public class InnerMainActivity extends AppCompatActivity
                 mProgressDialog.setMessage("Please hold on!");
                 mProgressDialog.show();
 
+                final DateTime taskCalDT = new DateTime(CustomTimeDialog.getYearFinal(),
+                        CustomTimeDialog.getMonthFinal(),
+                        CustomTimeDialog.getDayFinal(),
+                        CustomTimeDialog.getHourFinal(),
+                        CustomTimeDialog.getMinuteFinal()).toDateTime(DateTimeZone.UTC);
+
+                Log.d("createTaskView/DT: ", taskCalDT.toString());
+                //Toast.makeText(getApplicationContext(), taskCalDT.toString(), Toast.LENGTH_LONG).show();
+
                 //String uid = User.getUid();
                 final String Username = User.getDisplayName();
                 // String name = "User " + uid.substring(0, 6);
                 final String taskname = taskName.getText().toString();
                 final String taskdesc = taskDesc.getText().toString();
-                final String taskCal = taskDate.getText().toString();
+                //final String taskCal = taskDate.getText().toString(); // Old Code
+                final String taskCal = taskCalDT.toString(); // Output the date time in ISO8601 format (yyyy-MM-ddTHH:mm:ss.SSSZZ).
 
                 mProgressDialog.setMessage("Uploading your image");
 
@@ -454,16 +473,19 @@ public class InnerMainActivity extends AppCompatActivity
         alert.show();
     }
 
+/*
+
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
         yearFinal = year;
         monthFinal = month;
         dayFinal = dayOfMonth;
+
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        TimePickerDialog timePickerDialog = new TimePickerDialog(InnerMainActivity.this,
+        TimePickerDialog timePickerDialog = new TimePickerDialog(view.getContext(),
                 InnerMainActivity.this,
                 hour,
                 minute,
@@ -480,6 +502,7 @@ public class InnerMainActivity extends AppCompatActivity
 
         dateBox.setText(dayFinal + "/" + monthFinal + "/" + yearFinal + "\t" + hourFinal + ":" + minuteFinal);
     }
+*/
 
 
     /**

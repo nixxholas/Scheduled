@@ -47,6 +47,8 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    // http://stackoverflow.com/questions/29237563/adding-joda-time-to-android-studio
+    compile 'joda-time:joda-time:2.9.4'
     testCompile 'junit:junit:4.12'
 }
 
