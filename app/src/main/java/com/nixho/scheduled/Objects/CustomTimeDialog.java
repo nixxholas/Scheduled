@@ -78,9 +78,17 @@ public class CustomTimeDialog extends DialogFragment implements DatePickerDialog
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        return new DatePickerDialog(getActivity(),
+        // Instantiate the DatePickerDialog Object
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
                 this,
-                year, month, day);
+                year,
+                month,
+                day);
+
+        // Enforce the user to only select dates later or equal to today
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+
+        return datePickerDialog;
     }
 
     @Override
@@ -108,4 +116,5 @@ public class CustomTimeDialog extends DialogFragment implements DatePickerDialog
 
         DateInput.setText(dayFinal + "/" + monthFinal + "/" + yearFinal + "\t" + hourFinal + ":" + minuteFinal);
     }
+
 }
